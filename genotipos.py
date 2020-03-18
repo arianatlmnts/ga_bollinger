@@ -31,7 +31,6 @@ def main():
     C = []
     p_mut = 0.1
     g = np.zeros(4)
-    print(g)
     # initialize random population
     for i in range(population_size):
         x = random.uniform(1,3) #Valor aleatorio para el alpha de la banda superior
@@ -40,8 +39,6 @@ def main():
         g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
         g[3] = random.randint(20,200) #
         C.append(Candidate(g.tolist(),fitness(g)))
-        print(g)
-
 
     # best fitness & survival
     ##C.sort(key=lambda x: x.fitness, reverse=True) # ordenar por fitness
