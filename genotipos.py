@@ -22,8 +22,8 @@ def fitness(c):
 
 
 def main():
+    population_size = 1
     C = []
-
     # initialize random population
     for i in range(population_size):
         # permutación
