@@ -2,13 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-#def returns_fitness(returns):
-    #neg_returns = len(list(filter(lambda x: (x < 0), returns)))
-    #pos_returns = len(list(filter(lambda x: (x > 0), returns)))
-
-    #return pos_returns / (neg_returns+pos_returns)
-
-
 def buy_sell(cierre,superior,inferior,window_size):
 
     compra = []
@@ -39,7 +32,7 @@ def buy_sell(cierre,superior,inferior,window_size):
             eur = 0
             venta.append(i)
 
-    if( dolares == 0):
+    if(dolares == 0):
         dolares = eur*cierre[-1]
         dolar.append(dolares)
 
