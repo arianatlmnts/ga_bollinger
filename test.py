@@ -50,8 +50,8 @@ def buy_sell(cierre,superior,inferior,window_size):
 def calculate_bollinger_bands(data,n=20,k1=2,k2=2):
     ma = data.rolling(window=n).mean()
     std = data.rolling(window=n).std()
-    upper_band = ma + (k*std)
-    lower_band = ma - (k*std)
+    upper_band = ma + (k1*std)
+    lower_band = ma - (k2*std)
 
     return ma, upper_band, lower_band
 
@@ -68,21 +68,17 @@ if __name__ == '__main__':
     Low = df['Low']
     Close = df['Close']
 
-    middle, upper, lower = calculate_bollinger_bands(Close,n=n,k=k)
+    middle, upper, lower = calculate_bollinger_bands(Close,n=n,k1=k,k2=k)
 
     Upper = np.array(upper)
-    Lower = np.array(inferior)
+    Lower = np.array(lower)
     Close = np.array(Close)
 
 
-    returns, usd = buy_sell(Close, Upper, Lower, N)
+    regreso_po, regreso_neg = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size=n)
 
-
-
-
-    returns_fit = returns_fitness(returns)
-    print(returns_fit)
-    print(usd)
+    #print(returns_fit)
+    #print(usd)
 
     plt.figure(figsize=(10,6))
     plt.plot(Close)
