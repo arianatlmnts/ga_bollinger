@@ -18,11 +18,12 @@ def returns_fitness(returns):
     return pos_returns / (neg_returns+pos_returns)
 
 def fitness(c):
+    
     return(0)
 
 
 def main():
-    population_size = 1
+    population_size = 100
     C = []
     # initialize random population
     for i in range(population_size):
