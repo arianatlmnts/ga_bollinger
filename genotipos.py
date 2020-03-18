@@ -34,18 +34,18 @@ def main():
     print(g)
     # initialize random population
     for i in range(population_size):
-        x = random.uniform(1,3)
-        y = random.uniform(1,3)
+        x = random.uniform(1,3) #Valor aleatorio para el alpha de la banda superior
+        y = random.uniform(1,3) #Valor aleatorio para la banda inferior
         g[0], g[1] = x, y
-        g[2] = random.randint(0,2)
-        g[3] = random.randint(20,200)
+        g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
+        g[3] = random.randint(20,200) #
         C.append(Candidate(g.tolist(),fitness(g)))
         print(g)
 
 
     # best fitness & survival
-    C.sort(key=lambda x: x.fitness, reverse=True) # ordenar por fitness
-    C = C[:population_size]
+    ##C.sort(key=lambda x: x.fitness, reverse=True) # ordenar por fitness
+    ##C = C[:population_size]
 
 
 
