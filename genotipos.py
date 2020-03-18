@@ -1,3 +1,7 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import random
 class Candidate(object):
     def __init__(self, genotype, fitness):
         self.genotype = genotype
@@ -18,13 +22,14 @@ def returns_fitness(returns):
     return pos_returns / (neg_returns+pos_returns)
 
 def fitness(c):
-    
+
     return(0)
 
 
 def main():
     population_size = 100
     C = []
+    p_mut = 0.1
     # initialize random population
     for i in range(population_size):
         # permutación
