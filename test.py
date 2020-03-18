@@ -57,7 +57,7 @@ def calculate_bollinger_bands(data,n=20,k1=2,k2=2):
 
 
 if __name__ == '__main__':
-    df = pd.read_csv('DATA/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
+    df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
 
     #p = 200
     n = 20
