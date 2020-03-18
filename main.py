@@ -202,6 +202,7 @@ def fitness(genes):
 
 def main():
     population_size = 1
+    print('tamaño de la población: ', population_size+1)
     C = []
     #p_mut = 0.1 # se utiliza en otro punto afuera de este ciclo
     g = np.zeros(4)
