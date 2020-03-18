@@ -17,15 +17,8 @@ def returns_fitness(returns):
 
     return pos_returns / (neg_returns+pos_returns)
 
-
-
-
-
-
-
-
 def fitness(c):
-    return(fitness)
+    return(0)
 
 
 def main():
