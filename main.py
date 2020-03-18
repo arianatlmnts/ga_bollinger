@@ -1,11 +1,23 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import random
 
 
+class Candidate(object):
+    def __init__(self, genotype, fitness):
+        self.genotype = genotype
+        self.fitness = fitness
 
-def returns_fitness(pos_returns, neg_returns):
-    return pos_returns / (neg_returns+pos_returns)
+    def mutation(self):
+        r = random.randint(0,100)
+        p_mut = 20
+        if r <= p_mut:
+            x,y = random.sample(range(1, queens), 2)
+            self.genotype[x],self.genotype[y] = self.genotype[y],self.genotype[x]
+        self.fitness = fitness(self.genotype)
+
+
 
 def buy_sell(cierre,superior,inferior,window_size):
 
@@ -43,6 +55,34 @@ def buy_sell(cierre,superior,inferior,window_size):
 
     return regreso_po, regreso_neg, dolares
 
+def fitness(g):
+
+    df = pd.read_csv('DATA/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
+
+    Open = df['Open']
+    High = df['High']
+    Low = df['Low']
+    Close = df['Close']
+
+
+    k1 = g[0]
+    k2 = g[1]
+    ##m = g[2]
+    n = int(g[3])
+
+
+    middle, upper, lower = calculate_bollinger_bands(Close,n=n,k1=k1,k2=k2)
+
+    Close = np.array(Close)
+    Upper = np.array(upper)
+    Lower = np.array(lower)
+
+
+    #print(n)
+
+    pos_returns, neg_returns, usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size=n)
+
+    return pos_returns / (neg_returns+pos_returns)
 
 
 def calculate_bollinger_bands(data,n=20,k1=2,k2=2):
@@ -55,33 +95,32 @@ def calculate_bollinger_bands(data,n=20,k1=2,k2=2):
 
 
 if __name__ == '__main__':
-    df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
-
-    #p = 200
-    n = 20
-    k = 2.5
-
-    Open = df['Open']
-    High = df['High']
-    Low = df['Low']
-    Close = df['Close']
-
-    middle, upper, lower = calculate_bollinger_bands(Close,n=n,k1=k,k2=k)
-
-    Upper = np.array(upper)
-    Lower = np.array(lower)
-    Close = np.array(Close)
 
 
-    regreso_po, regreso_neg, usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size=n)
+    population_size = 100
+    C = []
+    p_mut = 0.1
+    g = np.zeros(4)
+    # initialize random population
+    for i in range(1):
+        x = random.uniform(1,3) #Valor aleatorio para el alpha de la banda superior
+        y = random.uniform(1,3) #Valor aleatorio para la banda inferior
+        g[0], g[1] = x, y
+        g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
+        g[3] = random.randint(20,200) #
 
-    returns_fit = returns_fitness(regreso_po, regreso_neg)
-    print('return fitness: ',returns_fit)
-    print('usd: ',usd)
 
-    plt.figure(figsize=(10,6))
-    plt.plot(Close)
-    plt.plot(middle)
-    plt.plot(upper)
-    plt.plot(lower)
-    plt.show()
+        C.append(Candidate(g.tolist(),fitness(g)))
+
+    print(C[0].genotype, C[0].fitness)
+
+
+
+
+
+    #plt.figure(figsize=(10,6))
+    #plt.plot(Close)
+    #plt.plot(middle)
+    #plt.plot(upper)
+    #plt.plot(lower)
+    #plt.show()
