@@ -8,8 +8,9 @@ class Candidate(object):
         self.fitness = fitness
 
     def mutation(self):
-        r = random.random()
-        if r<p_mut:
+        r = random.randint(0,100)
+        p_mut = 20
+        if r <= p_mut:
             x,y = random.sample(range(1, queens), 2)
             self.genotype[x],self.genotype[y] = self.genotype[y],self.genotype[x]
         self.fitness = fitness(self.genotype)
