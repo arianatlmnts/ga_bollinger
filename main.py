@@ -32,7 +32,6 @@ def WMA (close,window = 20 ):
 
     mean = []
     window_values = []
-    window_sum =[]
     window_ind = np.arange(1,window+1)
 
     for  i in range(len(close)):
@@ -56,7 +55,7 @@ def WMA (close,window = 20 ):
 
     return (mean)
 
-def EMA (close,window = 20,alfa = 0.06):
+def EMA (close,window = 20,alfa = 0.08):
     #alfa = 2/(window + 1)
     mean = []
     window_values = []
@@ -221,14 +220,6 @@ def operaciones(close,open, middle, upper,lower,n):
 
 
 
-
-
-
-
-
-
-
-
     print('\nvalor final de USD_BUY: ',usd_buy )
     print('N° transacciones con perdias', no_trasac_perdida)
 
@@ -249,8 +240,8 @@ def operaciones(close,open, middle, upper,lower,n):
 def calculate_bollinger_bands(data,n=20,k1=2,k2=2):
     #ma = data.rolling(window=n).mean() # Genotipo los valores de mean
     #ma = SMA(data, window = n )
-    #ma = WMA(data, window = n )
-    ma = EMA(data, window = n)
+    ma = WMA(data, window = n )
+    #ma = EMA(data, window = n)
 
 
     std = data.rolling(window=n).std()  # Genotipo
