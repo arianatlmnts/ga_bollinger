@@ -19,17 +19,6 @@ class Candidate(object):
         self.fitness = fitness(self.genotype)
 
 
-
-
-
-
-'''  ## Funcion duplicada
-def returns_fitness(returns):
-    neg_returns = len(list(filter(lambda x: (x < 0), returns)))
-    pos_returns = len(list(filter(lambda x: (x > 0), returns)))
-
-    return pos_returns / (neg_returns+pos_returns)
-'''
 def returns_fitness(pos_returns, neg_returns):
     return pos_returns / (neg_returns+pos_returns)
 
@@ -80,8 +69,9 @@ def WMA (close,window = 20 ):
 
     return (mean)
 
-def EMA (close,window = 20,alfa = 0.06):
-    #alfa = 2/(window + 1)
+def EMA (close,window = 20):
+
+    alfa = 2/(window + 1)
     mean = []
     window_values = []
     aprendizaje = 1-alfa
@@ -149,38 +139,52 @@ def buy_sell(cierre,superior,inferior,window_size):
 
 
 
-def calculate_bollinger_bands(data,n=20,k1=2,k2=2):
-    #ma = data.rolling(window=n).mean()
-    #ma = SMA(data, window = n)
-    #ma = WMA(data, window = n)
-    ma = EMA(data, window = n)
+def calculate_bollinger_bands(data,select_mean =0, n=20,k1=2,k2=2):
+    
+    #mean = data.rolling(window=n).mean()
+    #print('bollinger_ventana', n)
+
+    if (select_mean == 0 ):
+        mean = SMA(data, window = n)
+    elif (select_mean == 1 ):
+        mean = WMA(data, window = n)
+    elif (select_mean == 2):
+        mean = EMA(data, window = n)
+    else: print('error mean')
     std = data.rolling(window=n).std()
-    upper_band = ma + (k1*std)
-    lower_band = ma - (k2*std)
+    upper_band = mean + (k1*std)
+    lower_band = mean - (k2*std)
 
-    return ma, upper_band, lower_band
+    return mean, upper_band, lower_band
 
 
-def fitness(genes):
+def fitness(gens):
     df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
 
-    #p = 200
-    n = 20
-    k = 2.5
+    '''
+    variable gens interpretacion
+    gen 0 [k/upper]      valor k para la banda superior
+    gen 1 [k/lower]      valor k para la banda inferior
+    gen 2 [mean]         valor enteros de 0 a  2 para seleccionar una media
+            0  media normal
+            1  media ponderada
+            2 media exponencial
+    gen 3 [window Value] valor  de 20 a 200 para la ventana de la media
+    '''
 
     Open = df['Open']
     High = df['High']
     Low = df['Low']
     Close = df['Close']
 
-    middle, upper, lower = calculate_bollinger_bands(Close,n=n,k1=k,k2=k)
+    middle, upper, lower = calculate_bollinger_bands(Close, select_mean= gens[2] ,n= gens[3], k1=gens[0],k2=gens[1])
 
     Upper = np.array(upper)
     Lower = np.array(lower)
     Close = np.array(Close)
 
 
-    regreso_po, regreso_neg, usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size=n)
+    regreso_po, regreso_neg, usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size= gens[3])
 
     returns_fit = returns_fitness(regreso_po, regreso_neg)
 
@@ -188,39 +192,29 @@ def fitness(genes):
 
 
 
-    ''' para hacer el ciclo de procesamiento no es necesario graficar
-    print('return fitness: ',returns_fit)
-    print('usd: ',usd)
-
-    plt.figure(figsize=(10,6))
-    plt.plot(Close)
-    plt.plot(middle)
-    plt.plot(upper)
-    plt.plot(lower)
-    plt.show()
-    '''
 
 def main():
-    population_size = 1
-    print('tamaño de la población: ', population_size+1)
+    population_size = int(input('introduzca población:  \n')) -1
     C = []
     #p_mut = 0.1 # se utiliza en otro punto afuera de este ciclo
-    g = np.zeros(4)
+    
     # initialize random population
     contador_w = 0
     while  (contador_w <= population_size): 
-
+        g = list(np.zeros(4))
         x = random.uniform(1,3) #Valor aleatorio para el alpha de la banda superior
         y = random.uniform(1,3) #Valor aleatorio para la banda inferior
         g[0], g[1] = x, y
         g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
-        g[3] = random.randint(20,200) #
-        C.append(Candidate(g.tolist(),fitness(g)))
+        g[3] = random.randint(20,200) 
+        C.append(Candidate(g,fitness(g)))
+
         contador_w += 1
 
-    for i in range(len(C)):
-        print (C[i].fitness)
-        print (C[i].genotype)
+    for i in C:
+        print (i.fitness,i.genotype)
+
+
 
     # best fitness & survival
     ##C.sort(key=lambda x: x.fitness, reverse=True) # ordenar por fitness
