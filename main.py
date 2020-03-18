@@ -2,10 +2,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+'''  ## Funcion duplicada
 def returns_fitness(returns):
     neg_returns = len(list(filter(lambda x: (x < 0), returns)))
     pos_returns = len(list(filter(lambda x: (x > 0), returns)))
 
+    return pos_returns / (neg_returns+pos_returns)
+'''
+def returns_fitness(pos_returns, neg_returns):
     return pos_returns / (neg_returns+pos_returns)
 
 ''' funciones para el calculo de medias'''
@@ -87,9 +91,6 @@ def EMA (close,window = 20,alfa = 0.08):
     return mean
 
 
-
-def returns_fitness(pos_returns, neg_returns):
-    return pos_returns / (neg_returns+pos_returns)
 
 def buy_sell(cierre,superior,inferior,window_size):
 

@@ -30,7 +30,7 @@ def fitness(c):
 def main():
     population_size = 100
     C = []
-    p_mut = 0.1
+    #p_mut = 0.1
     g = np.zeros(4)
     # initialize random population
     for i in range(population_size):
