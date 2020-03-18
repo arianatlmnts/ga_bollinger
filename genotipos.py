@@ -8,8 +8,9 @@ class Candidate(object):
         self.fitness = fitness
 
     def mutation(self):
-        r = random.random()
-        if r<p_mut:
+        r = random.randint(0,100)
+        p_mut = 20
+        if r <= p_mut:
             x,y = random.sample(range(1, queens), 2)
             self.genotype[x],self.genotype[y] = self.genotype[y],self.genotype[x]
         self.fitness = fitness(self.genotype)
@@ -31,21 +32,18 @@ def main():
     C = []
     p_mut = 0.1
     g = np.zeros(4)
-    print(g)
     # initialize random population
     for i in range(population_size):
-        x = random.uniform(1,3)
-        y = random.uniform(1,3)
+        x = random.uniform(1,3) #Valor aleatorio para el alpha de la banda superior
+        y = random.uniform(1,3) #Valor aleatorio para la banda inferior
         g[0], g[1] = x, y
-        g[2] = random.randint(0,2)
-        g[3] = random.randint(20,200)
+        g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
+        g[3] = random.randint(20,200) #
         C.append(Candidate(g.tolist(),fitness(g)))
-        print(g)
-
 
     # best fitness & survival
-    C.sort(key=lambda x: x.fitness, reverse=True) # ordenar por fitness
-    C = C[:population_size]
+    ##C.sort(key=lambda x: x.fitness, reverse=True) # ordenar por fitness
+    ##C = C[:population_size]
 
 
 
