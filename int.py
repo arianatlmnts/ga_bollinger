@@ -1,16 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-print('pandas imported')
-
-
-# In[2]:
 
 
 def calculate_bollinger_bands(data,n,k):
@@ -30,10 +24,6 @@ def calculate_bollinger_bands(data,n,k):
     plt.show()
     return upper_band, lower_band
 
-
-# In[10]:
-
-
 if __name__ == '__main__':
     df = pd.read_csv('EURUSD_Candlestick_5_m_BID_01.05.2006-31.08.2006.csv')
     dias = 200
@@ -44,9 +34,6 @@ if __name__ == '__main__':
     k = 1.5
 
     superior, inferior = calculate_bollinger_bands(closing_price,window_size,k)
-
-
-# In[11]:
 
 
 superior = np.array(superior)
@@ -85,13 +72,11 @@ if( dolares == 0):
     dolar.append(dolares)
 
 
-print(dolar)
+#print(dolar)
 #print(euros)
-print(regreso_po)
-print(regreso_neg)
+#print(regreso_po)
+#print(regreso_neg)
 
-
-# In[ ]:
 
 
 
