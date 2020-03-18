@@ -2,6 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+
+
+def returns_fitness(pos_returns, neg_returns):
+    return pos_returns / (neg_returns+pos_returns)
+
 def buy_sell(cierre,superior,inferior,window_size):
 
     compra = []
@@ -36,7 +41,7 @@ def buy_sell(cierre,superior,inferior,window_size):
         dolares = eur*cierre[-1]
         dolar.append(dolares)
 
-    return regreso_po, regreso_neg
+    return regreso_po, regreso_neg, dolares
 
 
 
@@ -68,10 +73,11 @@ if __name__ == '__main__':
     Close = np.array(Close)
 
 
-    regreso_po, regreso_neg = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size=n)
+    regreso_po, regreso_neg, usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size=n)
 
-    #print(returns_fit)
-    #print(usd)
+    returns_fit = returns_fitness(regreso_po, regreso_neg)
+    print('return fitness: ',returns_fit)
+    print('usd: ',usd)
 
     plt.figure(figsize=(10,6))
     plt.plot(Close)
