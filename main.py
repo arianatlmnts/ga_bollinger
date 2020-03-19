@@ -222,8 +222,8 @@ def main():
         g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
         g[3] = random.randint(20,200) #Selecciona la ventana a usar
         C.append(Candidate(g,fitness(g)))
-
         contador_w += 1
+
 
     for i in C:
         print (i.fitness,i.genotype)
