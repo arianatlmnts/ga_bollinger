@@ -10,10 +10,26 @@ class Candidate(object):
         self.genotype = genotype
         self.fitness = fitness
 
-    def mutation(self): #cambiar metodo esta mutacion no es aplicable a este metodo
-        r = random.randint(0,100)
+    def mutation(self): 
         p_mut = 10
-        if r <= p_mut:
+        for i in range(0, 1): #mutacion para los primeros dos 
+            r = random.randint(0,100)
+            if r <= p_mut: #condicion para que la mutacion no sea menor a 1 ni mayor a 3
+                x = random.uniform(-1, 1)
+                y = self.genotype[i] - x
+                if( y < 1):
+                    self.genotype[i] = 1
+                elif( y > 3):
+                    self.genotype[i] = 3
+                else:
+                    self.genotype[i] = y
+        r = random.randint(0,100)
+        if r <= p_mut: #mutacion para el tipo de media
+            self.genotype[2] = random.randint(0, 2) #cambia la media por otra 
+        r = random.randint(0,100)
+        if r <= p_mut: #mutacion para la ventana
+            self.genotype[3] = random.randint(20, 200) #Cambia la ventana actual por una aleatoria
+
             x,y = random.sample(range(1, len(self.genotype)), 2)
             self.genotype[x],self.genotype[y] = self.genotype[y],self.genotype[x]
         self.fitness = fitness(self.genotype)
@@ -209,8 +225,7 @@ def calculate_bollinger_bands(data,select_mean =0, n=20,k1=2,k2=2):
 def main():
     population_size = int(input('introduzca población:  \n')) -1
     C = []
-    #p_mut = 0.1 # se utiliza en otro punto afuera de este ciclo
-    
+
     # initialize random population
     contador_w = 0
     while  (contador_w <= population_size): 
@@ -219,9 +234,8 @@ def main():
         y = random.uniform(1,3) #Valor aleatorio para la banda inferior
         g[0], g[1] = x, y
         g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
-        g[3] = random.randint(20,200) 
+        g[3] = random.randint(20,200) #Selecciona la ventana a usar
         C.append(Candidate(g,fitness(g)))
-
         contador_w += 1
 
     print('antes de cross ', len(C))
@@ -243,4 +257,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
