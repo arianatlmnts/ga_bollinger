@@ -220,7 +220,6 @@ def main():
     best_fitness = [] # para graficar
     average_fitness = [] # para graficar
 
-
     # initialize random population
     for i in range(population_size):
         g = list(np.zeros(4))
@@ -231,25 +230,22 @@ def main():
         g[3] = random.randint(20,200) #Selecciona la ventana a usar
         C.append(Candidate(g,fitness(g)))
 
-
-
-    ## Evolución...
     counter = 0
     while counter < generations:
         counter +=1
 
         C.sort(key=lambda x: x.fitness, reverse=True)
-        C = C[:population_size] # mantener el tamaño de población
-        best_fitness.append(C[0].fitness) # mejor fitness por generación
+        C = C[:population_size]                         # mantener el tamaño de población
+        best_fitness.append(C[0].fitness)               # mejor fitness por generación
 
-
-        print('generación%2d:'%(counter))
+        print('\n\ngeneración%2d:\n'%(counter))
 
         for i in C:
             print (i.fitness,i.genotype)
 
+        print('mejor fitness: ', C[0].fitness)
 
-        # los mejores 2
+        ## Cruzamiento
         p1 = C[0].genotype
         p2 = C[1].genotype
 
@@ -259,20 +255,11 @@ def main():
 
         print('hijos: %s y %s'%(c1,c2))
 
-
-
-
-
-        #offspring = crossover(p1,p2)
-        #for child in offspring:
-            #c = Candidate(child,fitness(child))
-            #C.append(c)
-
-
-    # best fitness & survival
-    ##C.sort(key=lambda x: x.fitness, reverse=True) # ordenar por fitness
-    ##C = C[:population_size]
-
+        offspring = crossover(p1,p2)
+        for child in offspring:
+            c = Candidate(child,fitness(child))
+            c.mutation()
+            C.append(c)
 
 
 if __name__ == "__main__":
