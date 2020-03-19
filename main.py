@@ -39,7 +39,6 @@ def SMA (close,window = 20 ):
 
     return (mean)
 
-
 def WMA (close,window = 20 ):
 
     mean = []
