@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import random 
+import random
 
 '''  sección del geneotipo'''
 
@@ -18,9 +18,20 @@ class Candidate(object):
             self.genotype[x],self.genotype[y] = self.genotype[y],self.genotype[x]
         self.fitness = fitness(self.genotype)
 
+class Candidate(object):
+    def __init__(self, genotype, fitness):
+        self.genotype = genotype
+        self.fitness = fitness
 
-def returns_fitness(pos_returns, neg_returns):
-    return pos_returns / (neg_returns+pos_returns)
+    def mutation(self):
+        r = random.randint(0,100)
+        p_mut = 20
+        if r <= p_mut:
+            x,y = random.sample(range(1, queens), 2)
+            self.genotype[x],self.genotype[y] = self.genotype[y],self.genotype[x]
+        self.fitness = fitness(self.genotype)
+
+
 
 ''' funciones para el calculo de medias'''
 
@@ -137,6 +148,26 @@ def buy_sell(cierre,superior,inferior,window_size):
 
     return regreso_po, regreso_neg, dolares
 
+  
+def fitness(gens):
+    df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
+
+    '''
+    variable gens interpretacion
+    gen 0 [k/upper]      valor k para la banda superior
+    gen 1 [k/lower]      valor k para la banda inferior
+    gen 2 [mean]         valor enteros de 0 a  2 para seleccionar una media
+            0  media normal
+            1  media ponderada
+            2 media exponencial
+    gen 3 [window Value] valor  de 20 a 200 para la ventana de la media
+    '''
+    middle, upper, lower = calculate_bollinger_bands(Close, select_mean= gens[2] ,n= gens[3], k1=gens[0],k2=gens[1])
+
+    regreso_po, regreso_neg, usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size= gens[3])
+
+
+    return (pos_returns / (neg_returns+pos_returns))
 
 
 def calculate_bollinger_bands(data,select_mean =0, n=20,k1=2,k2=2):
@@ -158,37 +189,7 @@ def calculate_bollinger_bands(data,select_mean =0, n=20,k1=2,k2=2):
     return mean, upper_band, lower_band
 
 
-def fitness(gens):
-    df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
 
-    '''
-    variable gens interpretacion
-    gen 0 [k/upper]      valor k para la banda superior
-    gen 1 [k/lower]      valor k para la banda inferior
-    gen 2 [mean]         valor enteros de 0 a  2 para seleccionar una media
-            0  media normal
-            1  media ponderada
-            2 media exponencial
-    gen 3 [window Value] valor  de 20 a 200 para la ventana de la media
-    '''
-
-    Open = df['Open']
-    High = df['High']
-    Low = df['Low']
-    Close = df['Close']
-
-    middle, upper, lower = calculate_bollinger_bands(Close, select_mean= gens[2] ,n= gens[3], k1=gens[0],k2=gens[1])
-
-    Upper = np.array(upper)
-    Lower = np.array(lower)
-    Close = np.array(Close)
-
-
-    regreso_po, regreso_neg, usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size= gens[3])
-
-    returns_fit = returns_fitness(regreso_po, regreso_neg)
-
-    return(returns_fit)
 
 
 
@@ -224,3 +225,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
