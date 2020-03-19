@@ -161,9 +161,21 @@ def fitness(gens):
             1  media ponderada
             2 media exponencial
     gen 3 [window Value] valor  de 20 a 200 para la ventana de la media
+
     '''
+
+    Open = df['Open']
+    High = df['High']
+    Low = df['Low']
+    Close = df['Close']
+
+
+    
     middle, upper, lower = calculate_bollinger_bands(Close, select_mean= gens[2] ,n= gens[3], k1=gens[0],k2=gens[1])
 
+    Upper = np.array(upper)
+    Lower = np.array(lower)
+    Close = np.array(Close)
     regreso_po, regreso_neg, usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size= gens[3])
 
 
