@@ -17,6 +17,20 @@ class Candidate(object):
             x,y = random.sample(range(1, len(self.genotype)), 2)
             self.genotype[x],self.genotype[y] = self.genotype[y],self.genotype[x]
         self.fitness = fitness(self.genotype)
+   
+    def cross(self,objects):
+        cross_val = random.randint(0,len(self.genotype))
+        gen = random.choice(objects).genotype
+        new_gen_0 = self.genotype[:cross_val] + gen[cross_val:]
+        new_gen_1 = gen[:cross_val]+self.genotype[cross_val:] 
+        objects.append(Candidate(new_gen_0,fitness(new_gen_0)))
+        objects.append(Candidate(new_gen_1,fitness(new_gen_1)))
+
+
+
+
+        
+
 
 
 
@@ -209,6 +223,12 @@ def main():
         C.append(Candidate(g,fitness(g)))
 
         contador_w += 1
+
+    print('antes de cross ', len(C))
+
+    C[0].cross(C) #Funcion de cruzamiento
+    
+    print('despues de cross ', len(C))
 
     for i in C:
         print (i.fitness,i.genotype)
