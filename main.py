@@ -30,8 +30,8 @@ class Candidate(object):
         if r <= p_mut: #mutacion para la ventana
             self.genotype[3] = random.randint(20, 200) #Cambia la ventana actual por una aleatoria
 
-            x,y = random.sample(range(1, len(self.genotype)), 2)
-            self.genotype[x],self.genotype[y] = self.genotype[y],self.genotype[x]
+            #x,y = random.sample(range(1, len(self.genotype)), 2)
+            #self.genotype[x],self.genotype[y] = self.genotype[y],self.genotype[x]
         self.fitness = fitness(self.genotype)
 
 
@@ -204,7 +204,7 @@ def calculate_bollinger_bands(data,select_mean =0, n=20,k1=2,k2=2):
         mean = WMA(data, window = n)
     elif (select_mean == 2):
         mean = EMA(data, window = n)
-    else: print('error mean')
+    else: print('Error: ha eligido un valor no valido [error mean]')
     std = data.rolling(window=n).std()
     upper_band = mean + (k1*std)
     lower_band = mean - (k2*std)
