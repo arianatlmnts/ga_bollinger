@@ -10,9 +10,9 @@ class Candidate(object):
         self.genotype = genotype
         self.fitness = fitness
 
-    def mutation(self): 
+    def mutation(self):
         p_mut = 10
-        for i in range(0, 1): #mutacion para los primeros dos 
+        for i in range(0, 1): #mutacion para los primeros dos
             r = random.randint(0,100)
             if r <= p_mut: #condicion para que la mutacion no sea menor a 1 ni mayor a 3
                 x = random.uniform(-1, 1)
@@ -25,7 +25,7 @@ class Candidate(object):
                     self.genotype[i] = y
         r = random.randint(0,100)
         if r <= p_mut: #mutacion para el tipo de media
-            self.genotype[2] = random.randint(0, 2) #cambia la media por otra 
+            self.genotype[2] = random.randint(0, 2) #cambia la media por otra
         r = random.randint(0,100)
         if r <= p_mut: #mutacion para la ventana
             self.genotype[3] = random.randint(20, 200) #Cambia la ventana actual por una aleatoria
@@ -33,20 +33,15 @@ class Candidate(object):
             x,y = random.sample(range(1, len(self.genotype)), 2)
             self.genotype[x],self.genotype[y] = self.genotype[y],self.genotype[x]
         self.fitness = fitness(self.genotype)
-   
-    def cross(self,objects):
-        cross_val = random.randint(0,len(self.genotype))
-        gen = random.choice(objects).genotype
-        new_gen_0 = self.genotype[:cross_val] + gen[cross_val:]
-        new_gen_1 = gen[:cross_val]+self.genotype[cross_val:] 
-        objects.append(Candidate(new_gen_0,fitness(new_gen_0)))
-        objects.append(Candidate(new_gen_1,fitness(new_gen_1)))
 
 
+def crossover(g1,g2):
+    cross_val = random.randint(0,len(g1))
 
+    c1 = g1[:cross_val] + g2[cross_val:]
+    c2 = g2[:cross_val] + g1[cross_val:]
 
-        
-
+    return c1,c2
 
 
 
@@ -164,7 +159,7 @@ def buy_sell(cierre,superior,inferior,window_size):
 
     return regreso_po, regreso_neg, dolares
 
-  
+
 def fitness(gens):
     df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
 
@@ -186,7 +181,7 @@ def fitness(gens):
     Close = df['Close']
 
 
-    
+
     middle, upper, lower = calculate_bollinger_bands(Close, select_mean= gens[2] ,n= gens[3], k1=gens[0],k2=gens[1])
 
     Upper = np.array(upper)
@@ -199,7 +194,7 @@ def fitness(gens):
 
 
 def calculate_bollinger_bands(data,select_mean =0, n=20,k1=2,k2=2):
-    
+
     #mean = data.rolling(window=n).mean()
     #print('bollinger_ventana', n)
 
@@ -217,18 +212,17 @@ def calculate_bollinger_bands(data,select_mean =0, n=20,k1=2,k2=2):
     return mean, upper_band, lower_band
 
 
-
-
-
-
-
 def main():
-    population_size = int(input('introduzca población:  \n')) -1
+    population_size = int(input('tamaño de población: '))
+    generations = int(input('número de generaciones: '))
     C = []
 
+    best_fitness = [] # para graficar
+    average_fitness = [] # para graficar
+
+
     # initialize random population
-    contador_w = 0
-    while  (contador_w <= population_size): 
+    for i in range(population_size):
         g = list(np.zeros(4))
         x = random.uniform(1,3) #Valor aleatorio para el alpha de la banda superior
         y = random.uniform(1,3) #Valor aleatorio para la banda inferior
@@ -236,17 +230,43 @@ def main():
         g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
         g[3] = random.randint(20,200) #Selecciona la ventana a usar
         C.append(Candidate(g,fitness(g)))
-        contador_w += 1
 
-    print('antes de cross ', len(C))
 
-    C[0].cross(C) #Funcion de cruzamiento
-    
-    print('despues de cross ', len(C))
 
-    for i in C:
-        print (i.fitness,i.genotype)
+    ## Evolución...
+    counter = 0
+    while counter < generations:
+        counter +=1
 
+        C.sort(key=lambda x: x.fitness, reverse=True)
+        C = C[:population_size] # mantener el tamaño de población
+        best_fitness.append(C[0].fitness) # mejor fitness por generación
+
+
+        print('generación%2d:'%(counter))
+
+        for i in C:
+            print (i.fitness,i.genotype)
+
+
+        # los mejores 2
+        p1 = C[0].genotype
+        p2 = C[1].genotype
+
+        print('padres: %s y %s'%(p1,p2))
+
+        c1, c2 = crossover(p1,p2)
+
+        print('hijos: %s y %s'%(c1,c2))
+
+
+
+
+
+        #offspring = crossover(p1,p2)
+        #for child in offspring:
+            #c = Candidate(child,fitness(child))
+            #C.append(c)
 
 
     # best fitness & survival
