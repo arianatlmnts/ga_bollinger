@@ -18,19 +18,6 @@ class Candidate(object):
             self.genotype[x],self.genotype[y] = self.genotype[y],self.genotype[x]
         self.fitness = fitness(self.genotype)
 
-class Candidate(object):
-    def __init__(self, genotype, fitness):
-        self.genotype = genotype
-        self.fitness = fitness
-
-    def mutation(self):
-        r = random.randint(0,100)
-        p_mut = 20
-        if r <= p_mut:
-            x,y = random.sample(range(1, queens), 2)
-            self.genotype[x],self.genotype[y] = self.genotype[y],self.genotype[x]
-        self.fitness = fitness(self.genotype)
-
 
 
 ''' funciones para el calculo de medias'''
@@ -176,7 +163,7 @@ def fitness(gens):
     Upper = np.array(upper)
     Lower = np.array(lower)
     Close = np.array(Close)
-    regreso_po, regreso_neg, usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size= gens[3])
+    pos_returns, neg_returns , usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size= gens[3])
 
 
     return (pos_returns / (neg_returns+pos_returns))
