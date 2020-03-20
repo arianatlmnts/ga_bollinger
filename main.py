@@ -10,7 +10,7 @@ class Candidate(object):
         self.genotype = genotype
         self.usd = 0
         self.fitness, self.usd = fitness
-    def mutation(self):
+    def mutation(self,df):
         p_mut = 30
         for i in range(0, 2): #mutacion para los primeros dos
             r = random.randint(0,100)
@@ -37,7 +37,7 @@ class Candidate(object):
         r = random.randint(0,100)
         if r <= p_mut:
             self.genotype[5] = random.uniform(0.001,0.010)
-        self.fitness, self.usd = fitness(self.genotype)
+        self.fitness, self.usd = fitness(self.genotype, df = df)
 
 
 
@@ -185,7 +185,7 @@ def buy_sell(cierre,superior,inferior,window_size, cont, epsilon):
     return regreso_po, regreso_neg, dolares
 
 
-def fitness(gens):
+def fitness(gens,df):
     '''
     variable gens interpretacion
     gen 0 [k/upper]      valor k para la banda superior
@@ -198,7 +198,6 @@ def fitness(gens):
     gen 5 [valor Stop/loss] Valor entre 0.001 y 0.01 para determinar cuanto se puede perser
 
     '''
-    df = pd.read_csv('data/15_minutes/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
     Close = df['Close']
     middle, upper, lower = calculate_bollinger_bands(data = Close,
                                                      select_mean = int(gens[2]),
@@ -220,8 +219,6 @@ def fitness(gens):
       return (pos_returns / (neg_returns+pos_returns), usd)
     except ZeroDivisionError:
       return -1
-
-
 
 
 def calculate_bollinger_bands(data, select_mean, n, k1, k2):
@@ -280,6 +277,8 @@ def graficar(select_mean, n, k1, k2, best, average):
 def main():
     #population_size = int(input('tamaño de población: '))
     #generations = int(input('número de generaciones: '))
+    df = pd.read_csv('data/15_minutes/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
+
     population_size = 4
     generations = 10
     C = []
@@ -297,7 +296,7 @@ def main():
         g[3] = random.randint(20,200) #Selecciona la ventana a usar
         g[4] = random.randint(1,100) #numero de transacciones
         g[5] = random.uniform(0.001,0.010)
-        C.append(Candidate(g,fitness(g)))
+        C.append(Candidate(g,fitness(g, df=df)))
 
     counter = 0
     gene = []
@@ -322,9 +321,11 @@ def main():
 
         #Reemplazo de individuos
         for child in offspring:
-            c = Candidate(child,fitness(child))
-            c.mutation()
+            c = Candidate(child,fitness(child,df = df))
+            c.mutation(df = df)
             C.append(c)
+        print('generación: ', counter)
+
     # Visualizacion
 
     C.sort(key = lambda x: x.fitness, reverse = True)
