@@ -274,6 +274,12 @@ def main():
         C = C[:population_size]                         # mantener el tamaño de población
         best_fitness.append(C[0].fitness)               # mejor fitness por generación
 
+        total_sum = 0;
+        for c in C:
+            total_sum += c.fitness
+        average_fitness.append(total_sum/population_size)
+
+
         ## Cruzamiento
         p1 = C[0].genotype
         p2 = C[1].genotype
@@ -285,11 +291,19 @@ def main():
             c.mutation()
             C.append(c)
 
+
+    plt.plot(best_fitness, label='Aptitud Mayor')
+    plt.plot(average_fitness, label='Aptitud Promedio')
+    plt.ylabel('Aptitud')
+    plt.xlabel('Generación')
+    plt.legend()
+    plt.show()
+
     #Visualizacion del mejor individuo
+    '''
     C.sort(key = lambda x: x.fitness, reverse = True)
     mejor_ind = C[0].genotype
 
-    '''
     graficar(k1 = mejor_ind[0],
              k2 = mejor_ind[1],
              select_mean = mejor_ind[2],
