@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import random
-
+import matplotlib.patches as mpatches
 '''  sección del geneotipo'''
 
 class Candidate(object):
@@ -158,7 +158,7 @@ def buy_sell(cierre,superior,inferior,window_size, cont, epsilon):
     for i in range(int(window_size), superior.shape[0]):
         if( cierre[i-1] < inferior[i-1] and cierre[i] > inferior[i] and dolares > 0 and cont > 0):
             eur = dolares/cierre[i]
-            costo_tran = 0.01*cierre[i]*eur
+            #costo_tran = 0.01*cierre[i]*eur
             dolares = 0
             euros.append(eur)
             compra.append(i)
@@ -168,7 +168,7 @@ def buy_sell(cierre,superior,inferior,window_size, cont, epsilon):
         stop_loss(close= cierre, eur = eur, compra = compra, i = i, transaccion = long_term,  epsilon = epsilon) and cont > 0):
 
             dolares = eur*cierre[i] - costo_tran
-            cont -= 1
+            #cont -= 1
             if( (dolares - dolar[-1]) > 0 ):
                 regreso_po += 1
             elif( (dolares - dolar[-1]) < 0):
@@ -198,6 +198,10 @@ def fitness(gens,df):
     gen 5 [valor Stop/loss] Valor entre 0.001 y 0.01 para determinar cuanto se puede perser
 
     '''
+<<<<<<< HEAD
+=======
+    df = pd.read_csv('data/15_minutes/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
+>>>>>>> master
     Close = df['Close']
     middle, upper, lower = calculate_bollinger_bands(data = Close,
                                                      select_mean = int(gens[2]),
@@ -238,7 +242,11 @@ def calculate_bollinger_bands(data, select_mean, n, k1, k2):
 
 
 def graficar(select_mean, n, k1, k2, best, average):
+<<<<<<< HEAD
     df = pd.read_csv('data/15_minutes_EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
+=======
+    df = pd.read_csv('data/15_minutes/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
+>>>>>>> master
     data = df['Close']
     if (select_mean == 0 ):
         mean = SMA(data, window = n)
@@ -254,21 +262,21 @@ def graficar(select_mean, n, k1, k2, best, average):
 
 
     fig, (ax1, ax2) = plt.subplots(2)
-    fig.suptitle('Resultados')
 
-    ax2.set_title('Bandas')
-    ax1.plot(data)
-    ax1.plot(mean)
-    ax1.plot(upper_band)
-    ax1.plot(lower_band)
-
+    ax1.set_title('Bandas')
+    ax1.plot(data, label='Datos')
+    ax1.plot(mean, label= 'Media')
+    ax1.plot(upper_band, label = 'Banda superios')
+    ax1.plot(lower_band, label = 'Banda inferior')
+    plt.ylabel('Dolar')
+    plt.xlabel('Periodo')
+    
     ax2.set_title('Aptitud por generación')
     ax2.plot(best, label='Aptitud Mayor')
     ax2.plot(average, label='Aptitud Promedio')
-
-    #ax2.ylabel('Aptitud')
-    #ax2.xlabel('Generación')
-    #ax2.legend()
+    plt.ylabel('Fitness')
+    plt.xlabel('Generacion')
+    plt.legend()
 
     plt.show()
 
@@ -299,10 +307,11 @@ def main():
         C.append(Candidate(g,fitness(g, df=df)))
 
     counter = 0
+    gene = []
     while counter < generations:
         #incremento de generacion
         counter +=1
-
+        gene.append(counter)
         C.sort(key=lambda x: x.fitness, reverse=True)
         C = C[:population_size]                         # mantener el tamaño de población
         best_fitness.append(C[0].fitness)               # mejor fitness por generación
@@ -323,8 +332,11 @@ def main():
             c = Candidate(child,fitness(child,df = df))
             c.mutation(df = df)
             C.append(c)
+<<<<<<< HEAD
         print('generación: ', counter)
 
+=======
+>>>>>>> master
     # Visualizacion
 
     C.sort(key = lambda x: x.fitness, reverse = True)
@@ -338,6 +350,6 @@ def main():
              n = mejor_ind[3],
              best = best_fitness,
              average = average_fitness)
-
 if __name__ == "__main__":
     main()
+
