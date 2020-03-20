@@ -34,7 +34,11 @@ class Candidate(object):
         r = random.randint(0,100)
         if r <= p_mut:
             self.genotype[4] = random.randint(1,10)
+        r = random.randint(0,100)
+        if r <= p_mut:
+            self.genotype[5] = random.uniform(0.001,0.010)
         self.fitness, self.usd = fitness(self.genotype)
+
 
 
 def crossover(g1,g2):
@@ -137,7 +141,7 @@ def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
 
 
 
-def buy_sell(cierre,superior,inferior,window_size, cont):
+def buy_sell(cierre,superior,inferior,window_size, cont, epsilon):
     costo_tran = 0
     compra = []
     venta = []
@@ -161,7 +165,7 @@ def buy_sell(cierre,superior,inferior,window_size, cont):
             long_term = True
             
         if ( (cierre[i-1] > superior[i-1] and cierre[i] < superior[i] and eur > 0 and cont > 0) or
-        stop_loss(close= cierre, eur = eur, compra = compra, i = i, transaccion = long_term) and cont > 0):
+        stop_loss(close= cierre, eur = eur, compra = compra, i = i, transaccion = long_term,  epsilon = epsilon) and cont > 0):
 
             dolares = eur*cierre[i] - costo_tran
             #cont -= 1
@@ -191,6 +195,7 @@ def fitness(gens):
             1  media ponderada
             2 media exponencial
     gen 3 [window Value] valor  de 20 a 200 para la ventana de la media
+    gen 5 [valor Stop/loss] Valor entre 0.001 y 0.01 para determinar cuanto se puede perser
 
     '''
     df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
@@ -208,7 +213,8 @@ def fitness(gens):
                                               superior=Upper, 
                                               inferior=Lower, 
                                               window_size= gens[3], 
-                                              cont = gens[4])
+                                              cont = gens[4],
+                                              epsilon = gens[5])
 
     try:
       return (pos_returns / (neg_returns+pos_returns), usd)
@@ -283,13 +289,14 @@ def main():
 
     # initialize random population
     for i in range(population_size):
-        g = list(np.zeros(5))
+        g = list(np.zeros(6))
         x = random.uniform(1,3) #Valor aleatorio para el alpha de la banda superior
         y = random.uniform(1,3) #Valor aleatorio para la banda inferior
         g[0], g[1] = x, y
         g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
         g[3] = random.randint(20,200) #Selecciona la ventana a usar
-        g[4] = random.randint(1,10) #numero de transacciones
+        g[4] = random.randint(1,100) #numero de transacciones
+        g[5] = random.uniform(0.001,0.010)
         C.append(Candidate(g,fitness(g)))
 
     counter = 0
