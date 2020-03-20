@@ -226,7 +226,7 @@ def calculate_bollinger_bands(data, select_mean, n, k1, k2):
 
 
 
-def graficar(select_mean, n, k1, k2):
+def graficar(select_mean, n, k1, k2, best, average):
     df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
     data = df['Close']
     if (select_mean == 0 ):
@@ -239,11 +239,28 @@ def graficar(select_mean, n, k1, k2):
     std = data.rolling(window=n).std()
     upper_band = mean + (k1*std)
     lower_band = mean - (k2*std)
-    plt.plot(data)
-    plt.plot(mean)
-    plt.plot(upper_band)
-    plt.plot(lower_band)
+
+
+
+    fig, (ax1, ax2) = plt.subplots(2)
+    fig.suptitle('Resultados')
+
+    ax2.set_title('Bandas')
+    ax1.plot(data)
+    ax1.plot(mean)
+    ax1.plot(upper_band)
+    ax1.plot(lower_band)
+
+    ax2.set_title('Aptitud por generación')
+    ax2.plot(best, label='Aptitud Mayor')
+    ax2.plot(average, label='Aptitud Promedio')
+    #ax2.ylabel('Aptitud')
+    #ax2.xlabel('Generación')
+    #ax2.legend()
+
     plt.show()
+
+
 
 def main():
     #population_size = int(input('tamaño de población: '))
@@ -292,23 +309,24 @@ def main():
             C.append(c)
 
 
-    plt.plot(best_fitness, label='Aptitud Mayor')
-    plt.plot(average_fitness, label='Aptitud Promedio')
-    plt.ylabel('Aptitud')
-    plt.xlabel('Generación')
-    plt.legend()
-    plt.show()
+    #plt.plot(best_fitness, label='Aptitud Mayor')
+    #plt.plot(average_fitness, label='Aptitud Promedio')
+    #plt.ylabel('Aptitud')
+    #plt.xlabel('Generación')
+    #plt.legend()
+    #plt.show()
 
-    #Visualizacion del mejor individuo
-    '''
+    # Visualizacion
+
     C.sort(key = lambda x: x.fitness, reverse = True)
     mejor_ind = C[0].genotype
 
     graficar(k1 = mejor_ind[0],
              k2 = mejor_ind[1],
              select_mean = mejor_ind[2],
-             n = mejor_ind[3])
-    '''
+             n = mejor_ind[3],
+             best = best_fitness,
+             average = average_fitness)
 
 if __name__ == "__main__":
     main()
