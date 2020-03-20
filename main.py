@@ -8,8 +8,8 @@ import random
 class Candidate(object):
     def __init__(self, genotype, fitness):
         self.genotype = genotype
-        self.fitness = fitness
-
+        self.usd = 0
+        self.fitness, self.usd = fitness
     def mutation(self):
         p_mut = 30
         for i in range(0, 2): #mutacion para los primeros dos
@@ -31,8 +31,7 @@ class Candidate(object):
         r = random.randint(0,100)
         if r <= p_mut: #mutacion para la ventana
             self.genotype[3] = random.randint(20, 200) #Cambia la ventana actual por una aleatoria
-
-        self.fitness = fitness(self.genotype)
+        self.fitness, self.usd = fitness(self.genotype)
 
 
 def crossover(g1,g2):
@@ -203,7 +202,7 @@ def fitness(gens):
     pos_returns, neg_returns , usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size= gens[3])
 
     try:
-      return (pos_returns / (neg_returns+pos_returns))
+      return (pos_returns / (neg_returns+pos_returns), usd)
     except ZeroDivisionError:
       return -1
 
@@ -266,7 +265,7 @@ def graficar(select_mean, n, k1, k2, best, average):
 def main():
     #population_size = int(input('tamaño de población: '))
     #generations = int(input('número de generaciones: '))
-    population_size = 20
+    population_size = 5
     generations = 10
     C = []
 
@@ -313,7 +312,9 @@ def main():
 
     C.sort(key = lambda x: x.fitness, reverse = True)
     mejor_ind = C[0].genotype
-
+    print('Dolares restantes: ')
+    print(C[0].usd)
+    print(C[0].genotype)
     graficar(k1 = mejor_ind[0],
              k2 = mejor_ind[1],
              select_mean = mejor_ind[2],
