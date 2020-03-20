@@ -12,7 +12,7 @@ class Candidate(object):
 
     def mutation(self):
         p_mut = 30
-        for i in range(0, 1): #mutacion para los primeros dos
+        for i in range(0, 2): #mutacion para los primeros dos
             r = random.randint(0,100)
             if r <= p_mut: #condicion para que la mutacion no sea menor a 1 ni mayor a 3
                 x = random.uniform(-1, 1)
