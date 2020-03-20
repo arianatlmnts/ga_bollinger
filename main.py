@@ -221,8 +221,6 @@ def fitness(gens,df):
       return -1
 
 
-
-
 def calculate_bollinger_bands(data, select_mean, n, k1, k2):
 
     if (select_mean == 0 ):
@@ -240,7 +238,7 @@ def calculate_bollinger_bands(data, select_mean, n, k1, k2):
 
 
 def graficar(select_mean, n, k1, k2, best, average):
-    df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
+    df = pd.read_csv('data/15_minutes_EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
     data = df['Close']
     if (select_mean == 0 ):
         mean = SMA(data, window = n)
@@ -279,7 +277,7 @@ def graficar(select_mean, n, k1, k2, best, average):
 def main():
     #population_size = int(input('tamaño de población: '))
     #generations = int(input('número de generaciones: '))
-    df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
+    df = pd.read_csv('data/15_minutes/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
 
     population_size = 4
     generations = 10
@@ -298,7 +296,7 @@ def main():
         g[3] = random.randint(20,200) #Selecciona la ventana a usar
         g[4] = random.randint(1,100) #numero de transacciones
         g[5] = random.uniform(0.001,0.010)
-        C.append(Candidate(g,fitness(g,df=df)))
+        C.append(Candidate(g,fitness(g, df=df)))
 
     counter = 0
     while counter < generations:
@@ -325,6 +323,7 @@ def main():
             c = Candidate(child,fitness(child,df = df))
             c.mutation(df = df)
             C.append(c)
+        print('generación: ', counter)
 
     # Visualizacion
 
