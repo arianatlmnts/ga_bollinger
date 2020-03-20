@@ -131,9 +131,9 @@ def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
             #print('funciono')
 
             condition = True
-    return condition  
+    return condition
 
-    
+
 
 def buy_sell(cierre,superior,inferior,window_size):
 
@@ -155,11 +155,11 @@ def buy_sell(cierre,superior,inferior,window_size):
             dolares = 0
             euros.append(eur)
             compra.append(i)
-            long_term = True            
+            long_term = True
 
-        if ( (cierre[i-1] > superior[i-1] and cierre[i] < superior[i] and eur > 0) or 
+        if ( (cierre[i-1] > superior[i-1] and cierre[i] < superior[i] and eur > 0) or
         stop_loss(close= cierre, eur = eur, compra = compra, i = i, transaccion = long_term)):
-            
+
             dolares = eur*cierre[i]
             if( (dolares - dolar[-1]) > 0 ):
                 regreso_po += 1
@@ -191,9 +191,9 @@ def fitness(gens):
     '''
     df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
     Close = df['Close']
-    middle, upper, lower = calculate_bollinger_bands(data = Close, 
+    middle, upper, lower = calculate_bollinger_bands(data = Close,
                                                      select_mean = int(gens[2]),
-                                                     n = int(gens[3]), 
+                                                     n = int(gens[3]),
                                                      k1 = gens[0],
                                                      k2 = gens[1])
 
@@ -202,66 +202,53 @@ def fitness(gens):
     Close = np.array(Close)
     pos_returns, neg_returns , usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size= gens[3])
 
-    try: 
+    try:
       return (pos_returns / (neg_returns+pos_returns))
     except ZeroDivisionError:
       return -1
 
-   
+
 
 
 def calculate_bollinger_bands(data, select_mean, n, k1, k2):
 
     if (select_mean == 0 ):
       mean = SMA(close = data, window = n)
-      std = data.rolling(window=n).std()
-      upper_band = mean + (k1*std)
-      lower_band = mean - (k2*std)
-      return mean, upper_band, lower_band
     elif (select_mean == 1 ):
       mean = WMA(close = data, window = n)
-      std = data.rolling(window=n).std()
-      upper_band = mean + (k1*std)
-      lower_band = mean - (k2*std)
-      return mean, upper_band, lower_band
     elif (select_mean == 2):
       mean = EMA(close = data, window = n)
-      std = data.rolling(window=n).std()
-      upper_band = mean + (k1*std)
-      lower_band = mean - (k2*std)
-      return mean, upper_band, lower_band
-    
+
+    std = data.rolling(window=n).std()
+    upper_band = mean + (k1*std)
+    lower_band = mean - (k2*std)
+    return mean, upper_band, lower_band
+
 
 
 def graficar(select_mean, n, k1, k2):
-  df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
-  data = df['Close']
-  if (select_mean == 0 ):
-    mean = SMA(data, window = n)
+    df = pd.read_csv('data/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
+    data = df['Close']
+    if (select_mean == 0 ):
+        mean = SMA(data, window = n)
+    elif (select_mean == 1 ):
+        mean = WMA(data, window = n)
+    elif (select_mean == 2):
+        mean = EMA(data, window = n)
+
     std = data.rolling(window=n).std()
     upper_band = mean + (k1*std)
     lower_band = mean - (k2*std)
-  elif (select_mean == 1 ):
-    mean = WMA(data, window = n)
-    std = data.rolling(window=n).std()
-    upper_band = mean + (k1*std)
-    lower_band = mean - (k2*std)
-  elif (select_mean == 2):
-    mean = EMA(data, window = n)
-    std = data.rolling(window=n).std()
-    upper_band = mean + (k1*std)
-    lower_band = mean - (k2*std)
-  plt.plot(data)
-  plt.plot(mean)
-  plt.plot(upper_band)
-  plt.plot(lower_band)
-  plt.show()
-  return
+    plt.plot(data)
+    plt.plot(mean)
+    plt.plot(upper_band)
+    plt.plot(lower_band)
+    plt.show()
 
 def main():
     #population_size = int(input('tamaño de población: '))
     #generations = int(input('número de generaciones: '))
-    population_size = 100
+    population_size = 20
     generations = 10
     C = []
 
@@ -288,7 +275,7 @@ def main():
         best_fitness.append(C[0].fitness)               # mejor fitness por generación
 
         ## Cruzamiento
-        p1 = C[0].genotype 
+        p1 = C[0].genotype
         p2 = C[1].genotype
         offspring = crossover(p1,p2)
 
@@ -301,10 +288,13 @@ def main():
     #Visualizacion del mejor individuo
     C.sort(key = lambda x: x.fitness, reverse = True)
     mejor_ind = C[0].genotype
-    graficar(k1 = mejor_ind[0], 
-             k2 = mejor_ind[1], 
-             select_mean = mejor_ind[2], 
+
+    '''
+    graficar(k1 = mejor_ind[0],
+             k2 = mejor_ind[1],
+             select_mean = mejor_ind[2],
              n = mejor_ind[3])
+    '''
 
 if __name__ == "__main__":
     main()
