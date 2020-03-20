@@ -254,6 +254,7 @@ def graficar(select_mean, n, k1, k2, best, average):
     ax2.set_title('Aptitud por generación')
     ax2.plot(best, label='Aptitud Mayor')
     ax2.plot(average, label='Aptitud Promedio')
+
     #ax2.ylabel('Aptitud')
     #ax2.xlabel('Generación')
     #ax2.legend()
@@ -307,14 +308,6 @@ def main():
             c = Candidate(child,fitness(child))
             c.mutation()
             C.append(c)
-
-
-    #plt.plot(best_fitness, label='Aptitud Mayor')
-    #plt.plot(average_fitness, label='Aptitud Promedio')
-    #plt.ylabel('Aptitud')
-    #plt.xlabel('Generación')
-    #plt.legend()
-    #plt.show()
 
     # Visualizacion
 
