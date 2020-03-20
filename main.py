@@ -121,7 +121,19 @@ def EMA (close,window = 20):
 
     return mean
 
+def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
+    condition = False
+    if(transaccion):
+        usd_buy = close[compra[-1]]*eur
+        stop_loss_value = (usd_buy*(1-epsilon)) #stop loss value es porcentaje maximo de perdida
+        valor_actual = (eur*close[i])
+        if ( valor_actual < stop_loss_value):
+            #print('funciono')
 
+            condition = True
+    return condition  
+
+    
 
 def buy_sell(cierre,superior,inferior,window_size):
 
@@ -135,6 +147,7 @@ def buy_sell(cierre,superior,inferior,window_size):
     euros = []
     regreso_po = 0
     regreso_neg = 0
+    long_term = False #Para indicar que se tiene una operación en proceso(Para Stop loss)
 
     for i in range(int(window_size), superior.shape[0]):
         if( cierre[i-1] < inferior[i-1] and cierre[i] > inferior[i] and dolares > 0):
@@ -142,8 +155,11 @@ def buy_sell(cierre,superior,inferior,window_size):
             dolares = 0
             euros.append(eur)
             compra.append(i)
+            long_term = True            
 
-        if ( cierre[i-1] > superior[i-1] and cierre[i] < superior[i] and eur > 0):
+        if ( (cierre[i-1] > superior[i-1] and cierre[i] < superior[i] and eur > 0) or 
+        stop_loss(close= cierre, eur = eur, compra = compra, i = i, transaccion = long_term)):
+            
             dolares = eur*cierre[i]
             if( (dolares - dolar[-1]) > 0 ):
                 regreso_po += 1
@@ -152,7 +168,8 @@ def buy_sell(cierre,superior,inferior,window_size):
             dolar.append(dolares)
             eur = 0
             venta.append(i)
-  
+            long_term = False
+
     if(dolares == 0):
         dolares = eur*cierre[-1]
         dolar.append(dolares)
