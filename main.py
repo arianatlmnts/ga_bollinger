@@ -168,7 +168,7 @@ def buy_sell(cierre,superior,inferior,window_size):
             dolar.append(dolares)
             eur = 0
             venta.append(i)
-            long_term = True
+            long_term = False
 
     if(dolares == 0):
         dolares = eur*cierre[-1]
