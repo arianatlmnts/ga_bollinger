@@ -198,10 +198,6 @@ def fitness(gens,df):
     gen 5 [valor Stop/loss] Valor entre 0.001 y 0.01 para determinar cuanto se puede perser
 
     '''
-<<<<<<< HEAD
-=======
-    df = pd.read_csv('data/15_minutes/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
->>>>>>> master
     Close = df['Close']
     middle, upper, lower = calculate_bollinger_bands(data = Close,
                                                      select_mean = int(gens[2]),
@@ -242,11 +238,7 @@ def calculate_bollinger_bands(data, select_mean, n, k1, k2):
 
 
 def graficar(select_mean, n, k1, k2, best, average):
-<<<<<<< HEAD
-    df = pd.read_csv('data/15_minutes_EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
-=======
     df = pd.read_csv('data/15_minutes/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
->>>>>>> master
     data = df['Close']
     if (select_mean == 0 ):
         mean = SMA(data, window = n)
@@ -332,11 +324,8 @@ def main():
             c = Candidate(child,fitness(child,df = df))
             c.mutation(df = df)
             C.append(c)
-<<<<<<< HEAD
         print('generación: ', counter)
 
-=======
->>>>>>> master
     # Visualizacion
 
     C.sort(key = lambda x: x.fitness, reverse = True)
