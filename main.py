@@ -128,7 +128,7 @@ def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
         stop_loss_value = (usd_buy*(1-epsilon)) #stop loss value es porcentaje maximo de perdida
         valor_actual = (eur*close[i])
         if ( valor_actual < stop_loss_value):
-            print('funciono')
+            #print('funciono')
 
             condition = True
     return condition  
