@@ -8,8 +8,8 @@ import random
 class Candidate(object):
     def __init__(self, genotype, fitness):
         self.genotype = genotype
-        self.fitness = fitness
-
+        self.usd = 0
+        self.fitness, self.usd = fitness
     def mutation(self):
         p_mut = 30
         for i in range(0, 2): #mutacion para los primeros dos
@@ -31,8 +31,10 @@ class Candidate(object):
         r = random.randint(0,100)
         if r <= p_mut: #mutacion para la ventana
             self.genotype[3] = random.randint(20, 200) #Cambia la ventana actual por una aleatoria
-
-        self.fitness = fitness(self.genotype)
+        r = random.randint(0,100)
+        if r <= p_mut:
+            self.genotype[4] = random.randint(1,10)
+        self.fitness, self.usd = fitness(self.genotype)
 
 
 def crossover(g1,g2):
@@ -135,8 +137,8 @@ def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
 
 
 
-def buy_sell(cierre,superior,inferior,window_size):
-
+def buy_sell(cierre,superior,inferior,window_size, cont):
+    costo_tran = 0
     compra = []
     venta = []
 
@@ -150,17 +152,19 @@ def buy_sell(cierre,superior,inferior,window_size):
     long_term = False #Para indicar que se tiene una operación en proceso(Para Stop loss)
 
     for i in range(int(window_size), superior.shape[0]):
-        if( cierre[i-1] < inferior[i-1] and cierre[i] > inferior[i] and dolares > 0):
+        if( cierre[i-1] < inferior[i-1] and cierre[i] > inferior[i] and dolares > 0 and cont > 0):
             eur = dolares/cierre[i]
+            costo_tran = 0.01*cierre[i]*eur
             dolares = 0
             euros.append(eur)
             compra.append(i)
             long_term = True
+            
+        if ( (cierre[i-1] > superior[i-1] and cierre[i] < superior[i] and eur > 0 and cont > 0) or
+        stop_loss(close= cierre, eur = eur, compra = compra, i = i, transaccion = long_term) and cont > 0):
 
-        if ( (cierre[i-1] > superior[i-1] and cierre[i] < superior[i] and eur > 0) or
-        stop_loss(close= cierre, eur = eur, compra = compra, i = i, transaccion = long_term)):
-
-            dolares = eur*cierre[i]
+            dolares = eur*cierre[i] - costo_tran
+            cont -= 1
             if( (dolares - dolar[-1]) > 0 ):
                 regreso_po += 1
             elif( (dolares - dolar[-1]) < 0):
@@ -200,10 +204,14 @@ def fitness(gens):
     Upper = np.array(upper)
     Lower = np.array(lower)
     Close = np.array(Close)
-    pos_returns, neg_returns , usd = buy_sell(cierre=Close, superior=Upper, inferior=Lower, window_size= gens[3])
+    pos_returns, neg_returns , usd = buy_sell(cierre=Close, 
+                                              superior=Upper, 
+                                              inferior=Lower, 
+                                              window_size= gens[3], 
+                                              cont = gens[4])
 
     try:
-      return (pos_returns / (neg_returns+pos_returns))
+      return (pos_returns / (neg_returns+pos_returns), usd)
     except ZeroDivisionError:
       return -1
 
@@ -266,7 +274,7 @@ def graficar(select_mean, n, k1, k2, best, average):
 def main():
     #population_size = int(input('tamaño de población: '))
     #generations = int(input('número de generaciones: '))
-    population_size = 20
+    population_size = 4
     generations = 10
     C = []
 
@@ -275,12 +283,13 @@ def main():
 
     # initialize random population
     for i in range(population_size):
-        g = list(np.zeros(4))
+        g = list(np.zeros(5))
         x = random.uniform(1,3) #Valor aleatorio para el alpha de la banda superior
         y = random.uniform(1,3) #Valor aleatorio para la banda inferior
         g[0], g[1] = x, y
         g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
         g[3] = random.randint(20,200) #Selecciona la ventana a usar
+        g[4] = random.randint(1,100) #numero de transacciones
         C.append(Candidate(g,fitness(g)))
 
     counter = 0
@@ -292,7 +301,7 @@ def main():
         C = C[:population_size]                         # mantener el tamaño de población
         best_fitness.append(C[0].fitness)               # mejor fitness por generación
 
-        total_sum = 0;
+        total_sum = 0
         for c in C:
             total_sum += c.fitness
         average_fitness.append(total_sum/population_size)
@@ -313,7 +322,9 @@ def main():
 
     C.sort(key = lambda x: x.fitness, reverse = True)
     mejor_ind = C[0].genotype
-
+    print('Dolares restantes: ')
+    print(C[0].usd)
+    print(C[0].genotype)
     graficar(k1 = mejor_ind[0],
              k2 = mejor_ind[1],
              select_mean = mejor_ind[2],
