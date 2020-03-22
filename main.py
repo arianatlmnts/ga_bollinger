@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import random
 import matplotlib.patches as mpatches
+import time as time
 '''  sección del geneotipo'''
 
 class Candidate(object):
@@ -127,6 +128,22 @@ def EMA (close,window = 20):
 
     return mean
 
+def EMA2(close, window = 20):
+    alpha = 2/(window+1)
+    mean = []
+    for i in range(len(close)):
+        if i == 0:
+            mean.append(close[0])
+        if i > 0:
+            componente_2 = mean[-1]*(1-alpha)
+            componente_1 = close[i]*alpha
+            suma = componente_1 + componente_2
+            mean.append (suma)
+        
+    return  mean   
+
+
+
 def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
     condition = False
     if(transaccion):
@@ -134,8 +151,6 @@ def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
         stop_loss_value = (usd_buy*(1-epsilon)) #stop loss value es porcentaje maximo de perdida
         valor_actual = (eur*close[i])
         if ( valor_actual < stop_loss_value):
-            #print('funciono')
-
             condition = True
     return condition
 
@@ -215,6 +230,8 @@ def fitness(gens,df):
                                               cont = gens[4],
                                               epsilon = gens[5])
 
+    print(neg_returns,pos_returns)
+
     try:
       return (pos_returns / (neg_returns+pos_returns), usd)
     except ZeroDivisionError:
@@ -228,7 +245,7 @@ def calculate_bollinger_bands(data, select_mean, n, k1, k2):
     elif (select_mean == 1 ):
       mean = WMA(close = data, window = n)
     elif (select_mean == 2):
-      mean = EMA(close = data, window = n)
+      mean = EMA2(close = data, window = n)
 
     std = data.rolling(window=n).std()
     upper_band = mean + (k1*std)
