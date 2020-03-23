@@ -154,7 +154,11 @@ def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
             condition = True
     return condition
 
-
+def MDD(data):
+    index_max = max(range(len(data)), key=data.__getitem__)
+    index_min = min(range(index_max,len(data)), key = data.__getitem__)
+    mdd = (data[index_max]-data[index_min])
+    return mdd
 
 def buy_sell(cierre,superior,inferior,window_size, cont, epsilon):
     costo_tran = 0
@@ -233,7 +237,9 @@ def fitness(gens,df):
     print(neg_returns,pos_returns)
 
     try:
-      return (pos_returns / (neg_returns+pos_returns), usd)
+      #return (pos_returns / (neg_returns+pos_returns), usd)
+      mdd = MDD(Close)
+      return (pos_returns/mdd, usd)
     except ZeroDivisionError:
       return -1
 
@@ -309,7 +315,8 @@ def main():
         x = random.uniform(1,3) #Valor aleatorio para el alpha de la banda superior
         y = random.uniform(1,3) #Valor aleatorio para la banda inferior
         g[0], g[1] = x, y
-        g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
+        #g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
+        g[2] = 2 #Selecciona el tipo de media a usar
         g[3] = random.randint(20,200) #Selecciona la ventana a usar
         g[4] = random.randint(1,100) #numero de transacciones
         g[5] = random.uniform(0.001,0.010)
