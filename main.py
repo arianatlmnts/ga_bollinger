@@ -71,7 +71,7 @@ def SMA (close,window = 20 ):
 
     return mean
 #Media ponderada
-def WMA (close, window):
+def WMA (close, window = 20):
 
     mean = []
     window_values = []
@@ -154,6 +154,7 @@ def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
             condition = True
     return condition
 
+
 def MDD(data):
     index_max = max(range(len(data)), key=data.__getitem__)
     index_min = min(range(index_max,len(data)), key = data.__getitem__)
@@ -204,6 +205,106 @@ def buy_sell(cierre,superior,inferior,window_size, cont, epsilon):
     return regreso_po, regreso_neg, dolares
 
 
+def stop_loss_long(val_opt, valor,epsilon,close_val):
+    condition = False
+    stop_loss_value = val_opt*(1-epsilon)
+    valor_actual    = valor*(close_val)
+    if(valor_actual < stop_loss_value):
+        condition = True
+    return condition
+
+def stop_loss_short(val_opt, valor, epsilon,close_val):
+    condition = False
+    stopp_loss_value = valor * (1 + epsilon)
+    valor_actual = val_opt/close_val 
+    if(valor_actual < stopp_loss_value):
+        condition = True
+    return condition
+
+
+def longTerm(val_opt, price_open, close_val = 0,  act_open = False):
+    return_val = 0
+    if act_open:
+        eur = val_opt/price_open
+        return_val = eur
+    elif not act_open:
+        dollar = (close_val*price_open)-val_opt
+        return_val = dollar 
+    return return_val
+
+def shortTerm(val_opt, price_open, close_val = 0, act_open = False):
+    return_val = 0
+    if act_open:
+        dollar = val_opt*price_open #gregar comision despues
+        return_val = dollar
+    elif not act_open:
+        dollar_return = close_val-(val_opt*price_open)
+        return_val = dollar_return
+    return return_val
+
+        
+
+        
+
+def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
+    '''Solo se puede tener una posicion baierta a la vez, y tambien es cerrada o abierta a la vez
+        estas no pueden coexistir al mismo tiempo'''
+
+    open_position  = False
+    operation      = ''
+    shortTerm_buy  = []
+    shortTerm_sell = []
+    longTerm_buy   = []
+    longTerm_sell  = []
+
+    for i in range(10,len (data_close)):
+        
+        #si no hay trnasacciones abrir una (long Term o short Term)
+        if not(open_position):
+            if data_close[i]>bol_down[i] and data_close[i-1]<=bol_down[i-1]: # condicion_longterm   
+                open_position = True
+                operation = 'longTerm'
+                longTerm_buy.append(longTerm(val_opt= val_option, price_open= data_open[i+1], 
+                act_open = open_position ))
+
+            elif data_close[i]<bol_up[i] and data_close[i-1]>=bol_up[i-1]:
+                open_position = True
+                operation = 'shortTerm'
+                shortTerm_sell.append(shortTerm(val_opt = val_option,price_open = data_open[i+1],
+                act_open = open_position))
+        
+        #si hay una seccion cerrar una la transaccion en progreso
+        if (open_position):
+            #print(longTerm_buy)
+            if(longTerm_buy != []):
+                    if ((data_close[i] > bol_up[i] and data_close[i-1]<= bol_up[i-1]) or stop_loss_long(val_opt = val_option,
+                    valor = longTerm_buy[-1], epsilon = epsilon, close_val = data_close[i]) ) and operation == 'longTerm':
+
+                        open_position = False
+                        longTerm_sell.append(longTerm(val_opt= val_option, price_open = data_open[i+1],
+                        close_val = longTerm_buy[-1] ,act_open= open_position))
+
+            if shortTerm_sell != []:
+
+                if ((data_close[i] < bol_down[i] and data_close[i-1] >= bol_down[i-1]) or stop_loss_short(val_opt = val_option,
+                valor = shortTerm_sell[-1],epsilon = epsilon , close_val = data_close[i])) and operation =='shortTerm':
+                    open_position = False
+                    shortTerm_buy.append(shortTerm(val_opt = val_option, price_open = data_open[i+1],
+                    close_val = shortTerm_sell[-1], act_open = open_position))
+
+    
+    positive_returns = sum( i for i in longTerm_sell if i > 0)
+    negative_returns = sum( i for i in longTerm_sell if i < 0)
+    positive_returns += sum( i for i in shortTerm_buy if i > 0)
+    negative_returns += sum( i for i in shortTerm_buy if i < 0)
+
+    profit = positive_returns + negative_returns
+
+    return  positive_returns, negative_returns, profit
+
+
+
+
 def fitness(gens,df):
     '''
     variable gens interpretacion
@@ -218,6 +319,7 @@ def fitness(gens,df):
 
     '''
     Close = df['Close']
+    Open  = df['Open']
     middle, upper, lower = calculate_bollinger_bands(data = Close,
                                                      select_mean = int(gens[2]),
                                                      n = int(gens[3]),
@@ -227,13 +329,16 @@ def fitness(gens,df):
     Upper = np.array(upper)
     Lower = np.array(lower)
     Close = np.array(Close)
+    '''
     pos_returns, neg_returns , usd = buy_sell(cierre=Close, 
                                               superior=Upper, 
                                               inferior=Lower, 
                                               window_size= gens[3], 
                                               cont = gens[4],
                                               epsilon = gens[5])
-
+    '''
+    pos_returns, neg_returns, usd = options(val_option = 100, data_close= Close, data_open= Open,
+                                             bol_up = Upper, bol_down = Lower,epsilon= gens[5]) 
     print(neg_returns,pos_returns)
 
     try:
@@ -302,8 +407,8 @@ def main():
     #generations = int(input('número de generaciones: '))
     df = pd.read_csv('data/15_minutes/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
 
-    population_size = 4
-    generations = 10
+    population_size = 100
+    generations = 20
     C = []
 
     best_fitness = [] # para graficar
@@ -328,6 +433,7 @@ def main():
         #incremento de generacion
         counter +=1
         gene.append(counter)
+
         C.sort(key=lambda x: x.fitness, reverse=True)
         C = C[:population_size]                         # mantener el tamaño de población
         best_fitness.append(C[0].fitness)               # mejor fitness por generación
