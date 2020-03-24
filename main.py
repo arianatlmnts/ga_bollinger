@@ -344,7 +344,7 @@ def fitness(gens,df):
     try:
       #return (pos_returns / (neg_returns+pos_returns), usd)
       mdd = MDD(Close)
-      return (pos_returns/mdd, usd)
+      return ((pos_returns+neg_returns)/mdd, usd)
     except ZeroDivisionError:
       return -1
 
@@ -408,7 +408,7 @@ def main():
     df = pd.read_csv('data/15_minutes/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
 
     population_size = 100
-    generations = 20
+    generations = 100
     C = []
 
     best_fitness = [] # para graficar
