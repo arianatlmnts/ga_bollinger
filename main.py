@@ -496,24 +496,22 @@ def main ():
         print('Mejor candidato en serie:')
         print((result.fitness,result.usd))
         training_results.append(result)
-        break
 
-    print(training_results)
     training_results.sort(key=lambda x: x.fitness, reverse=True)
 
     best_candidate = training_results[0]
-    print('Mejor candidato en entrenamiento: ')
+    print('\nSolución obtenida: ')
     print('aptitud:', best_candidate.fitness)
     print('usd:',best_candidate.usd)
 
 
     print('\n\n--PRUEBA--\n')
+
     for i in range(1,4): # folders: test_1, ..., test_3
 
         path = 'series/1_min/test_'+str(i)+'/*.csv'
 
-        print('TEST',i,':')
-        print('Serie:',path.split('/')[-2:])
+        print('TEST',i)
 
         test_results = []
         test_data = glob.glob(path)
@@ -523,9 +521,9 @@ def main ():
             result = fitness(best_candidate.genotype, df=df, function=function)
             test_results.append(result)
 
-            print(result)
+            #print(result)
         test_results.sort(reverse=True)
-        print('Mejor resultado:',test_results[0])
+        print('Resultado:',test_results[0])
 
 if __name__ == "__main__":
     main()
