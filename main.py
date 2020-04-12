@@ -476,7 +476,7 @@ def bandasBG(path_file):
 
     C.sort(key = lambda x: x.fitness, reverse = True)
 
-    print('\nMejor individuo creado:\n')
+    print('\nMejor individuo creado:')
     #print('Profit: ', C[0].usd)
     #print('Datos del genotipo: ', C[0].genotype)
 
@@ -505,9 +505,7 @@ def main ():
         print(result)
         training_results.append(result)
 
-    print(traning_results)
-
-
+    print(training_results)
     training_results.sort(key=lambda x: x.fitness, reverse=True)
 
     best_candidate = training_results[0]
