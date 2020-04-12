@@ -401,10 +401,10 @@ def graficar(select_mean, n, k1, k2, best, average,path):
 def bandasBG(path_file):
     df = pd.read_csv(path_file)
 
-    print(path_file)
+    print(path_file.split('/')[-1])
 
-    population_size = 100
-    generations = 100
+    population_size = 20
+    generations = 10
     '''
     Function = función objetivo a utilizar
     0:  retornos positivos / (retornos positivos + retornos negativos)
@@ -477,10 +477,12 @@ def bandasBG(path_file):
     C.sort(key = lambda x: x.fitness, reverse = True)
 
     print('\nMejor individuo creado:\n')
-    print('Profit: ', C[0].usd)
-    print('Datos del genotipo: ', C[0].genotype)
+    #print('Profit: ', C[0].usd)
+    #print('Datos del genotipo: ', C[0].genotype)
 
-    print('\nTiempo de ejecucion: ', time.time()-start_time)
+    #print('\nTiempo de ejecucion: ', time.time()-start_time)
+
+    return C[0]
 
     '''
     graficar(k1 = mejor_ind[0],
@@ -491,13 +493,27 @@ def bandasBG(path_file):
              average = average_fitness, path = path_file)
     '''
 def main ():
-
     'Solo poner el nombre de la carpeta en file y se ejecura en que se encuentren en el'
-    data = glob.glob('series/1_min/training/*.csv')
+    training_data = glob.glob('series/1_min/training/*.csv')
 
-    print (data)
-    for i in data:
-        bandasBG(i)
+    print(training_data)
+    training_results = []
+
+
+    for i in training_data:
+        result = bandasBG(i)
+        print(result)
+        training_results.append(result)
+
+    print(traning_results)
+
+
+    training_results.sort(key=lambda x: x.fitness, reverse=True)
+
+    best_candidate = training_results[0]
+    print('Mejor candidato: ')
+    print('aptitud:', best_candidate.fitness)
+    print('usd:',best_candidate.usd)
 
 
 if __name__ == "__main__":
