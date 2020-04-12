@@ -5,13 +5,12 @@ import random
 import matplotlib.patches as mpatches
 import time as time
 '''  sección del geneotipo'''
-
 class Candidate(object):
     def __init__(self, genotype, fitness):
         self.genotype = genotype
         self.usd = 0
         self.fitness, self.usd = fitness
-    def mutation(self,df):
+    def mutation(self,df,function):
         p_mut = 30
         for i in range(0, 2): #mutacion para los primeros dos
             r = random.randint(0,100)
@@ -38,9 +37,7 @@ class Candidate(object):
         r = random.randint(0,100)
         if r <= p_mut:
             self.genotype[5] = random.uniform(0.001,0.010)
-        self.fitness, self.usd = fitness(self.genotype, df = df)
-
-
+        self.fitness, self.usd = fitness(self.genotype, df = df, function = function)
 
 def crossover(g1,g2):
     cross_val = random.randint(0,len(g1))
@@ -50,11 +47,9 @@ def crossover(g1,g2):
 
     return c1,c2
 
-
-
 ''' funciones para el calculo de medias'''
 #Media simple
-def SMA (close,window = 20 ):
+def SMA(close,window = 20 ):
 
     mean = []
     window_values = []
@@ -68,10 +63,10 @@ def SMA (close,window = 20 ):
             window_values.pop(0)
             window_values.append(close[i])
             mean.append(np.mean(window_values))
-
     return mean
+
 #Media ponderada
-def WMA (close, window = 20):
+def WMA(close, window = 20):
 
     mean = []
     window_values = []
@@ -82,9 +77,7 @@ def WMA (close, window = 20):
             window_values.append(close[i])
             i_sum = np.sum(list(range(1,i+2))) # si no lo vuelvo a calcular no hay problema ya alcanzo su valor opjetivo
             np_sum  = np.sum((np.arange(1,len(window_values)+1) * window_values)/i_sum)
-
             mean.append(np_sum)
-
 
         if i >= window:
             window_values.pop(0)
@@ -94,19 +87,18 @@ def WMA (close, window = 20):
             sum_ventana = np.sum(sum_ventana)
 
             mean.append(sum_ventana)
-
-
     return mean
+
 #Media exponencial
-def EMA (close,window = 20):
+def EMA(close,window = 20):
 
     alfa = 2/(window + 1)
     mean = []
     window_values = []
     aprendizaje = 1-alfa
     factor = []
-    for i in range(len(close)):
 
+    for i in range(len(close)):
         if i <= window:
             window_values.append(close[i])
             factor.append(aprendizaje)
@@ -125,7 +117,6 @@ def EMA (close,window = 20):
             factor_ventana = np.sum(factor_ventana/sum_exp)
 
             mean.append(factor_ventana)
-
     return mean
 
 def EMA2(close, window = 20):
@@ -139,10 +130,7 @@ def EMA2(close, window = 20):
             componente_1 = close[i]*alpha
             suma = componente_1 + componente_2
             mean.append (suma)
-        
-    return  mean   
-
-
+    return  mean
 
 def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
     condition = False
@@ -154,14 +142,13 @@ def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
             condition = True
     return condition
 
-
 def MDD(data):
     index_max = max(range(len(data)), key=data.__getitem__)
     index_min = min(range(index_max,len(data)), key = data.__getitem__)
     mdd = (data[index_max]-data[index_min])
     return mdd
 
-def buy_sell(cierre,superior,inferior,window_size, cont, epsilon):
+def buy_sell(cierre,superior,inferior,window_size,cont,epsilon):
     costo_tran = 0
     compra = []
     venta = []
@@ -183,7 +170,7 @@ def buy_sell(cierre,superior,inferior,window_size, cont, epsilon):
             euros.append(eur)
             compra.append(i)
             long_term = True
-            
+
         if ( (cierre[i-1] > superior[i-1] and cierre[i] < superior[i] and eur > 0 and cont > 0) or
         stop_loss(close= cierre, eur = eur, compra = compra, i = i, transaccion = long_term,  epsilon = epsilon) and cont > 0):
 
@@ -204,7 +191,6 @@ def buy_sell(cierre,superior,inferior,window_size, cont, epsilon):
 
     return regreso_po, regreso_neg, dolares
 
-
 def stop_loss_long(val_opt, valor,epsilon,close_val):
     condition = False
     stop_loss_value = val_opt*(1-epsilon)
@@ -216,11 +202,10 @@ def stop_loss_long(val_opt, valor,epsilon,close_val):
 def stop_loss_short(val_opt, valor, epsilon,close_val):
     condition = False
     stopp_loss_value = valor * (1 + epsilon)
-    valor_actual = val_opt/close_val 
+    valor_actual = val_opt/close_val
     if(valor_actual < stopp_loss_value):
         condition = True
     return condition
-
 
 def longTerm(val_opt, price_open, close_val = 0,  act_open = False):
     return_val = 0
@@ -229,7 +214,7 @@ def longTerm(val_opt, price_open, close_val = 0,  act_open = False):
         return_val = eur
     elif not act_open:
         dollar = (close_val*price_open)-val_opt
-        return_val = dollar 
+        return_val = dollar
     return return_val
 
 def shortTerm(val_opt, price_open, close_val = 0, act_open = False):
@@ -242,12 +227,8 @@ def shortTerm(val_opt, price_open, close_val = 0, act_open = False):
         return_val = dollar_return
     return return_val
 
-        
-
-        
-
 def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
-    '''Solo se puede tener una posicion baierta a la vez, y tambien es cerrada o abierta a la vez
+    '''Solo se puede tener una posicion abierta a la vez, y tambien es cerrada o abierta a la vez
         estas no pueden coexistir al mismo tiempo'''
 
     open_position  = False
@@ -258,13 +239,12 @@ def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
     longTerm_sell  = []
 
     for i in range(10,len (data_close)):
-        
         #si no hay trnasacciones abrir una (long Term o short Term)
         if not(open_position):
-            if data_close[i]>bol_down[i] and data_close[i-1]<=bol_down[i-1]: # condicion_longterm   
+            if data_close[i]>bol_down[i] and data_close[i-1]<=bol_down[i-1]: # condicion_longterm
                 open_position = True
                 operation = 'longTerm'
-                longTerm_buy.append(longTerm(val_opt= val_option, price_open= data_open[i+1], 
+                longTerm_buy.append(longTerm(val_opt= val_option, price_open= data_open[i+1],
                 act_open = open_position ))
 
             elif data_close[i]<bol_up[i] and data_close[i-1]>=bol_up[i-1]:
@@ -272,7 +252,7 @@ def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
                 operation = 'shortTerm'
                 shortTerm_sell.append(shortTerm(val_opt = val_option,price_open = data_open[i+1],
                 act_open = open_position))
-        
+
         #si hay una seccion cerrar una la transaccion en progreso
         if (open_position):
             #print(longTerm_buy)
@@ -293,7 +273,7 @@ def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
                     shortTerm_buy.append(shortTerm(val_opt = val_option, price_open = data_open[i+1],
                     close_val = shortTerm_sell[-1], act_open = open_position))
 
-    
+
     positive_returns = sum( i for i in longTerm_sell if i > 0)
     negative_returns = sum( i for i in longTerm_sell if i < 0)
     positive_returns += sum( i for i in shortTerm_buy if i > 0)
@@ -304,21 +284,7 @@ def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
     return  positive_returns, negative_returns, profit
 
 
-
-
-def fitness(gens,df):
-    '''
-    variable gens interpretacion
-    gen 0 [k/upper]      valor k para la banda superior
-    gen 1 [k/lower]      valor k para la banda inferior
-    gen 2 [mean]         valor enteros de 0 a  2 para seleccionar una media
-            0  media normal
-            1  media ponderada
-            2 media exponencial
-    gen 3 [window Value] valor  de 20 a 200 para la ventana de la media
-    gen 5 [valor Stop/loss] Valor entre 0.001 y 0.01 para determinar cuanto se puede perser
-
-    '''
+def fitness(gens,df,function):
     Close = df['Close']
     Open  = df['Open']
     middle, upper, lower = calculate_bollinger_bands(data = Close,
@@ -326,32 +292,38 @@ def fitness(gens,df):
                                                      n = int(gens[3]),
                                                      k1 = gens[0],
                                                      k2 = gens[1])
-
     Upper = np.array(upper)
     Lower = np.array(lower)
     Close = np.array(Close)
-    '''
-    pos_returns, neg_returns , usd = buy_sell(cierre=Close, 
-                                              superior=Upper, 
-                                              inferior=Lower, 
-                                              window_size= gens[3], 
-                                              cont = gens[4],
-                                              epsilon = gens[5])
-    '''
-    pos_returns, neg_returns, usd = options(val_option = 100, data_close= Close, data_open= Open,
-                                             bol_up = Upper, bol_down = Lower,epsilon= gens[5]) 
-    print(neg_returns,pos_returns, usd )
 
-    try:
-      #return (pos_returns / (neg_returns+pos_returns), usd)
-      mdd = MDD(Close)
-      return ((pos_returns+neg_returns)/mdd, usd)
-    except ZeroDivisionError:
-      return -1
+    ### Positive returns vs negative returns
+    if function == 0:
+        pos_returns, neg_returns , usd = buy_sell(cierre=Close,
+                                                  superior=Upper,
+                                                  inferior=Lower,
+                                                  window_size= gens[3],
+                                                  cont = gens[4],
+                                                  epsilon = gens[5])
 
+        try:
+            #print(neg_returns,pos_returns, usd )
+            return (pos_returns / (neg_returns+pos_returns), usd)
+        except ZeroDivisionError:
+            return -1
+
+    ### Stirling ratio
+    if function == 1:
+        pos_returns, neg_returns, usd = options(val_option = 100,
+                                                data_close= Close,
+                                                data_open= Open,
+                                                bol_up = Upper,
+                                                bol_down = Lower,
+                                                epsilon= gens[5])
+
+        mdd = MDD(Close)
+        return ((pos_returns+neg_returns)/mdd, usd)
 
 def calculate_bollinger_bands(data, select_mean, n, k1, k2):
-
     if (select_mean == 0 ):
       mean = SMA(close = data, window = n)
     elif (select_mean == 1 ):
@@ -363,7 +335,6 @@ def calculate_bollinger_bands(data, select_mean, n, k1, k2):
     upper_band = mean + (k1*std)
     lower_band = mean - (k2*std)
     return mean, upper_band, lower_band
-
 
 
 def graficar(select_mean, n, k1, k2, best, average):
@@ -380,8 +351,6 @@ def graficar(select_mean, n, k1, k2, best, average):
     upper_band = mean + (k1*std)
     lower_band = mean - (k2*std)
 
-
-
     fig, (ax1, ax2) = plt.subplots(2)
 
     ax1.set_title('Bandas')
@@ -391,7 +360,7 @@ def graficar(select_mean, n, k1, k2, best, average):
     ax1.plot(lower_band, label = 'Banda inferior')
     plt.ylabel('Dolar')
     plt.xlabel('Periodo')
-    
+
     ax2.set_title('Aptitud por generación')
     ax2.plot(best, label='Aptitud Mayor')
     ax2.plot(average, label='Aptitud Promedio')
@@ -401,19 +370,33 @@ def graficar(select_mean, n, k1, k2, best, average):
 
     plt.show()
 
-
-
 def main():
-    #population_size = int(input('tamaño de población: '))
-    #generations = int(input('número de generaciones: '))
     df = pd.read_csv('data/15_minutes/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
 
     population_size = 100
     generations = 100
+    '''
+    Function = función objetivo a utilizar
+    0:  retornos positivos / (retornos positivos + retornos negativos)
+    1:  stirling ratio => ganacias / máxima reducción
+    '''
+    function = 1
     C = []
 
-    best_fitness = [] # para graficar
-    average_fitness = [] # para graficar
+    best_fitness = []
+    average_fitness = []
+
+    '''
+    Interpretación de genotipo
+    gen 0 [k/upper]      valor k para la banda superior
+    gen 1 [k/lower]      valor k para la banda inferior
+    gen 2 [mean]         valor enteros de 0 a  2 para seleccionar una media
+            0  media normal
+            1  media ponderada
+            2 media exponencial
+    gen 3 [window Value] valor  de 20 a 200 para la ventana de la media
+    gen 5 [valor Stop/loss] Valor entre 0.001 y 0.01 para determinar cuanto se puede perser
+    '''
 
     # initialize random population
     for i in range(population_size):
@@ -426,13 +409,13 @@ def main():
         g[3] = random.randint(20,200) #Selecciona la ventana a usar
         g[4] = random.randint(1,100) #numero de transacciones
         g[5] = random.uniform(0.001,0.010)
-        C.append(Candidate(g,fitness(g, df=df)))
+        C.append(Candidate(g,fitness(g, df=df, function=function)))
 
     counter = 0
     gene = []
     while counter < generations:
-        #incremento de generacion
         counter +=1
+        print('generación: ', counter)
         gene.append(counter)
 
         C.sort(key=lambda x: x.fitness, reverse=True)
@@ -444,6 +427,8 @@ def main():
             total_sum += c.fitness
         average_fitness.append(total_sum/population_size)
 
+        print('Best fitness: ',best_fitness[-1])
+        print('Average fitness: ',average_fitness[-1])
 
         ## Cruzamiento
         p1 = C[0].genotype
@@ -452,10 +437,10 @@ def main():
 
         #Reemplazo de individuos
         for child in offspring:
-            c = Candidate(child,fitness(child,df = df))
-            c.mutation(df = df)
+            c = Candidate(child,fitness(child,df=df,function=function))
+            c.mutation(df=df,function=function)
             C.append(c)
-        print('generación: ', counter)
+
 
     # Visualizacion
 
