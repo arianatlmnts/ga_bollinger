@@ -4,6 +4,7 @@ import pandas as pd
 import random
 import matplotlib.patches as mpatches
 import time as time
+import glob
 '''  sección del geneotipo'''
 
 class Candidate(object):
@@ -264,13 +265,13 @@ def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
             if data_close[i]>bol_down[i] and data_close[i-1]<=bol_down[i-1]: # condicion_longterm   
                 open_position = True
                 operation = 'longTerm'
-                longTerm_buy.append(longTerm(val_opt= val_option, price_open= data_open[i+1], 
+                longTerm_buy.append(longTerm(val_opt= val_option, price_open= data_close[i], #cambie por error de lectura en open  data_open[i+1]
                 act_open = open_position ))
 
             elif data_close[i]<bol_up[i] and data_close[i-1]>=bol_up[i-1]:
                 open_position = True
                 operation = 'shortTerm'
-                shortTerm_sell.append(shortTerm(val_opt = val_option,price_open = data_open[i+1],
+                shortTerm_sell.append(shortTerm(val_opt = val_option,price_open = data_close[i],
                 act_open = open_position))
         
         #si hay una seccion cerrar una la transaccion en progreso
@@ -290,7 +291,7 @@ def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
                 if ((data_close[i] < bol_down[i] and data_close[i-1] >= bol_down[i-1]) or stop_loss_short(val_opt = val_option,
                 valor = shortTerm_sell[-1],epsilon = epsilon , close_val = data_close[i])) and operation =='shortTerm':
                     open_position = False
-                    shortTerm_buy.append(shortTerm(val_opt = val_option, price_open = data_open[i+1],
+                    shortTerm_buy.append(shortTerm(val_opt = val_option, price_open = data_close[i],    #cambie por error de lectura en open  data_open[i+1]
                     close_val = shortTerm_sell[-1], act_open = open_position))
 
     
@@ -302,8 +303,6 @@ def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
     profit = positive_returns + negative_returns
 
     return  positive_returns, negative_returns, profit
-
-
 
 
 def fitness(gens,df):
@@ -340,7 +339,7 @@ def fitness(gens,df):
     '''
     pos_returns, neg_returns, usd = options(val_option = 100, data_close= Close, data_open= Open,
                                              bol_up = Upper, bol_down = Lower,epsilon= gens[5]) 
-    print(neg_returns,pos_returns, usd )
+    #print(neg_returns,pos_returns, usd )
 
     try:
       #return (pos_returns / (neg_returns+pos_returns), usd)
@@ -367,8 +366,8 @@ def calculate_bollinger_bands(data, select_mean, n, k1, k2):
 
 
 
-def graficar(select_mean, n, k1, k2, best, average):
-    df = pd.read_csv('series/1_min/training/DATA.csv')
+def graficar(select_mean, n, k1, k2, best, average,path):
+    df = pd.read_csv(path)
     data = df['Close']
     if (select_mean == 0 ):
         mean = SMA(data, window = n)
@@ -404,15 +403,17 @@ def graficar(select_mean, n, k1, k2, best, average):
 
 
 
-def main():
+def bandasBG(path_file):
     #population_size = int(input('tamaño de población: '))
     #generations = int(input('número de generaciones: '))
-    df = pd.read_csv('series/1_min/training/DATA.csv',sep=r'\s*,\s*',header=0, encoding='ascii', engine='python')
     
-    #start_time = time.time()
+    print('\nRuta del archivo: \n', path_file,'\n')
+    df = pd.read_csv(path_file ,sep=r'\s*,\s*',header=0, encoding='ascii', engine='python')
+    
+    start_time = time.time()
 
-    population_size = 100
-    generations = 30
+    population_size = 10
+    generations = 5
     C = []
 
     best_fitness = [] # para graficar
@@ -424,8 +425,8 @@ def main():
         x = random.uniform(1,3) #Valor aleatorio para el alpha de la banda superior
         y = random.uniform(1,3) #Valor aleatorio para la banda inferior
         g[0], g[1] = x, y
-        #g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
-        g[2] = 2 #Selecciona el tipo de media a usar
+        g[2] = random.randint(0,2) #Selecciona el tipo de media a usar
+        #g[2] = 2 #Selecciona el tipo de media a usar
         g[3] = random.randint(20,200) #Selecciona la ventana a usar
         g[4] = random.randint(1,100) #numero de transacciones
         g[5] = random.uniform(0.001,0.010)
@@ -463,16 +464,31 @@ def main():
     # Visualizacion
 
     C.sort(key = lambda x: x.fitness, reverse = True)
-    mejor_ind = C[0].genotype
-    print('Dolares restantes: ')
-    print(C[0].usd)
-    print(C[0].genotype)
+
+    print('\nMejor individuo creado:\n')
+    print('Profit: ', C[0].usd)
+    print('Datos del genotipo: ', C[0].genotype)
+
+    print('\nTiempo de ejecucion: ', time.time()-start_time)
+
+    '''
     graficar(k1 = mejor_ind[0],
              k2 = mejor_ind[1],
              select_mean = mejor_ind[2],
              n = mejor_ind[3],
              best = best_fitness,
-             average = average_fitness)
+             average = average_fitness, path = path_file)
+    '''
+def main ():
+
+    'Solo poner el nombre de la carpeta en file y se ejecura en que se encuentren en el'
+    data = glob.glob('series/1_min/training/*.csv')
+
+    print (data)
+    for i in data:
+        bandasBG(i)
+
+
 if __name__ == "__main__":
     main()
 
