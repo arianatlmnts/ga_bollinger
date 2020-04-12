@@ -282,7 +282,7 @@ def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
                 valor = longTerm_buy[-1], epsilon = epsilon, close_val = data_close[i]) ) and operation == 'longTerm':
 
                     open_position = False
-                    longTerm_sell.append(longTerm(val_opt= val_option, price_open = data_open[i+1],
+                    longTerm_sell.append(longTerm(val_opt= val_option, price_open = data_close[i], #cambie por error de lectura en open  data_open[i+1]
                     close_val = longTerm_buy[-1] ,act_open= open_position))
 
             if shortTerm_sell != []:
@@ -344,6 +344,7 @@ def fitness(gens,df):
 
     try:
       #return (pos_returns / (neg_returns+pos_returns), usd)
+      
       mdd = MDD(Close)
       return ((pos_returns+neg_returns)/mdd, usd)
     except ZeroDivisionError:
@@ -367,7 +368,7 @@ def calculate_bollinger_bands(data, select_mean, n, k1, k2):
 
 
 def graficar(select_mean, n, k1, k2, best, average):
-    df = pd.read_csv('data/15_minutes/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
+    df = pd.read_csv('series/1_min/training/DATA.csv')
     data = df['Close']
     if (select_mean == 0 ):
         mean = SMA(data, window = n)
@@ -406,10 +407,12 @@ def graficar(select_mean, n, k1, k2, best, average):
 def main():
     #population_size = int(input('tamaño de población: '))
     #generations = int(input('número de generaciones: '))
-    df = pd.read_csv('data/15_minutes/EURUSD_Candlestick_15_m_BID_01.01.2007-31.12.2007.csv')
+    df = pd.read_csv('series/1_min/training/DATA.csv',sep=r'\s*,\s*',header=0, encoding='ascii', engine='python')
+    
+    #start_time = time.time()
 
     population_size = 100
-    generations = 100
+    generations = 30
     C = []
 
     best_fitness = [] # para graficar
