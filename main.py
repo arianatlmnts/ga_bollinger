@@ -277,12 +277,13 @@ def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
         if (open_position):
             #print(longTerm_buy)
             if(longTerm_buy != []):
-                    if ((data_close[i] > bol_up[i] and data_close[i-1]<= bol_up[i-1]) or stop_loss_long(val_opt = val_option,
-                    valor = longTerm_buy[-1], epsilon = epsilon, close_val = data_close[i]) ) and operation == 'longTerm':
 
-                        open_position = False
-                        longTerm_sell.append(longTerm(val_opt= val_option, price_open = data_open[i+1],
-                        close_val = longTerm_buy[-1] ,act_open= open_position))
+                if ((data_close[i] > bol_up[i] and data_close[i-1]<= bol_up[i-1]) or stop_loss_long(val_opt = val_option,
+                valor = longTerm_buy[-1], epsilon = epsilon, close_val = data_close[i]) ) and operation == 'longTerm':
+
+                    open_position = False
+                    longTerm_sell.append(longTerm(val_opt= val_option, price_open = data_open[i+1],
+                    close_val = longTerm_buy[-1] ,act_open= open_position))
 
             if shortTerm_sell != []:
 
@@ -339,7 +340,7 @@ def fitness(gens,df):
     '''
     pos_returns, neg_returns, usd = options(val_option = 100, data_close= Close, data_open= Open,
                                              bol_up = Upper, bol_down = Lower,epsilon= gens[5]) 
-    print(neg_returns,pos_returns)
+    print(neg_returns,pos_returns, usd )
 
     try:
       #return (pos_returns / (neg_returns+pos_returns), usd)
