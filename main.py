@@ -401,10 +401,10 @@ def graficar(select_mean, n, k1, k2, best, average,path):
 def bandasBG(path_file):
     df = pd.read_csv(path_file)
 
-    print(path_file.split('/')[-1])
+    print('Serie:',path_file.split('/')[-2:])
 
-    population_size = 20
-    generations = 10
+    population_size = 5
+    generations = 2
     '''
     Function = función objetivo a utilizar
     0:  retornos positivos / (retornos positivos + retornos negativos)
@@ -475,14 +475,7 @@ def bandasBG(path_file):
     # Visualizacion
 
     C.sort(key = lambda x: x.fitness, reverse = True)
-
-    print('\nMejor individuo creado:')
-    #print('Profit: ', C[0].usd)
-    #print('Datos del genotipo: ', C[0].genotype)
-
-    #print('\nTiempo de ejecucion: ', time.time()-start_time)
-
-    return C[0]
+    return C[0], function
 
     '''
     graficar(k1 = mejor_ind[0],
@@ -496,23 +489,48 @@ def main ():
     'Solo poner el nombre de la carpeta en file y se ejecura en que se encuentren en el'
     training_data = glob.glob('series/1_min/training/*.csv')
 
-    print(training_data)
+    #print(training_data)
     training_results = []
 
 
+    #### ENTRENAMIENTO
+    print('\n\n--ENTRENAMIENTO--\n')
     for i in training_data:
-        result = bandasBG(i)
-        print(result)
+        result, function = bandasBG(i)
+        print('Mejor candidato en serie:')
+        print((result.fitness,result.usd))
         training_results.append(result)
+        break
 
     print(training_results)
     training_results.sort(key=lambda x: x.fitness, reverse=True)
 
     best_candidate = training_results[0]
-    print('Mejor candidato: ')
+    print('Mejor candidato en entrenamiento: ')
     print('aptitud:', best_candidate.fitness)
     print('usd:',best_candidate.usd)
 
+
+    ##### PRUEBA
+    print('\n\n--PRUEBA--\n')
+    # Se utiliza mejor candidato obtenido en entrenamiento
+    for i in range(1,4): # folders: test_1, ..., test_3
+
+        print('TEST',i,':')
+        test_results = []
+
+        path = 'series/1_min/test_'+str(i)+'/*.csv'
+        test_data = glob.glob(path)
+
+
+        for file in test_data:
+            df = pd.read_csv(file)
+            result = fitness(best_candidate.genotype, df=df, function=function)
+            test_results.append(result)
+
+            print(result)
+        test_results.sort(reverse=True)
+        print('Mejor resultado:',test_results[0])
 
 if __name__ == "__main__":
     main()
