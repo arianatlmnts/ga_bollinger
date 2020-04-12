@@ -41,8 +41,6 @@ class Candidate(object):
             self.genotype[5] = random.uniform(0.001,0.010)
         self.fitness, self.usd = fitness(self.genotype, df = df, function=function)
 
-
-
 def crossover(g1,g2):
     cross_val = random.randint(0,len(g1))
 
@@ -50,8 +48,6 @@ def crossover(g1,g2):
     c2 = g2[:cross_val] + g1[cross_val:]
 
     return c1,c2
-
-
 
 ''' funciones para el calculo de medias'''
 #Media simple
@@ -144,7 +140,6 @@ def EMA2(close, window = 20):
     return  mean
 
 
-
 def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
     condition = False
     if(transaccion):
@@ -154,7 +149,6 @@ def stop_loss(close, eur, compra, i,epsilon = 0.010, transaccion = False):
         if ( valor_actual < stop_loss_value):
             condition = True
     return condition
-
 
 def MDD(data):
     index_max = max(range(len(data)), key=data.__getitem__)
@@ -205,7 +199,6 @@ def buy_sell(cierre,superior,inferior,window_size, cont, epsilon):
 
     return regreso_po, regreso_neg, dolares
 
-
 def stop_loss_long(val_opt, valor,epsilon,close_val):
     condition = False
     stop_loss_value = val_opt*(1-epsilon)
@@ -221,7 +214,6 @@ def stop_loss_short(val_opt, valor, epsilon,close_val):
     if(valor_actual < stopp_loss_value):
         condition = True
     return condition
-
 
 def longTerm(val_opt, price_open, close_val = 0,  act_open = False):
     return_val = 0
@@ -242,10 +234,6 @@ def shortTerm(val_opt, price_open, close_val = 0, act_open = False):
         dollar_return = close_val-(val_opt*price_open)
         return_val = dollar_return
     return return_val
-
-
-
-
 
 def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
     '''Solo se puede tener una posicion baierta a la vez, y tambien es cerrada o abierta a la vez
@@ -304,7 +292,6 @@ def options(val_option,data_close,data_open,bol_up,bol_down,epsilon = 0.001):
 
     return  positive_returns, negative_returns, profit
 
-
 def fitness(gens,df,function):
     Close = df['Close']
     Open  = df['Open']
@@ -344,7 +331,6 @@ def fitness(gens,df,function):
         mdd = MDD(Close)
         return ((pos_returns+neg_returns)/mdd, usd)
 
-
 def calculate_bollinger_bands(data, select_mean, n, k1, k2):
 
     if (select_mean == 0 ):
@@ -358,8 +344,6 @@ def calculate_bollinger_bands(data, select_mean, n, k1, k2):
     upper_band = mean + (k1*std)
     lower_band = mean - (k2*std)
     return mean, upper_band, lower_band
-
-
 
 def graficar(select_mean, n, k1, k2, best, average,path):
     df = pd.read_csv(path)
@@ -396,21 +380,19 @@ def graficar(select_mean, n, k1, k2, best, average,path):
 
     plt.show()
 
-
-
 def bandasBG(path_file):
     df = pd.read_csv(path_file)
 
     print('Serie:',path_file.split('/')[-2:])
 
-    population_size = 5
-    generations = 2
+    population_size = 30
+    generations = 10
     '''
     Function = función objetivo a utilizar
     0:  retornos positivos / (retornos positivos + retornos negativos)
     1:  stirling ratio => ganacias / máxima reducción
     '''
-    function = 1
+    function = 0
     C = []
 
     best_fitness = []
@@ -448,7 +430,7 @@ def bandasBG(path_file):
         counter +=1
         gene.append(counter)
 
-        print('generación: ', counter)
+        #print('generación: ', counter)
 
         C.sort(key=lambda x: x.fitness, reverse=True)
         C = C[:population_size]                         # mantener el tamaño de población
@@ -493,26 +475,20 @@ def main ():
     print('\n\n--ENTRENAMIENTO--\n')
     for i in training_data:
         result, function = bandasBG(i)
-        print('Mejor candidato en serie:')
-        print((result.fitness,result.usd))
+        #print('Mejor candidato en serie:', (result.fitness,result.usd))
         training_results.append(result)
 
     training_results.sort(key=lambda x: x.fitness, reverse=True)
 
     best_candidate = training_results[0]
-    print('\nSolución obtenida: ')
-    print('aptitud:', best_candidate.fitness)
-    print('usd:',best_candidate.usd)
+    print('\nSolución obtenida:', (best_candidate.fitness,best_candidate.usd))
+    print('Genotipo:',best_candidate.genotype)
 
 
     print('\n\n--PRUEBA--\n')
-
     for i in range(1,4): # folders: test_1, ..., test_3
-
-        path = 'series/1_min/test_'+str(i)+'/*.csv'
-
         print('TEST',i)
-
+        path = 'series/1_min/test_'+str(i)+'/*.csv'
         test_results = []
         test_data = glob.glob(path)
 
