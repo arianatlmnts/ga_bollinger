@@ -465,12 +465,12 @@ def bandasBG(path_file):
              average = average_fitness, path = path_file)
     '''
 def main ():
+
     training_data = glob.glob('series/1_min/training/*.csv')
 
     for i in training_data:
 
-        candlesticks = i.split('/')[0]
-        print(candlesticks)
+        candlesticks = i.split('/')[1]
         t = i.split('.')[0].split('_')[-1]
         #print('\n\nSerie:',i.split('/')[-2:])
         print('\n\nt =',t)
@@ -488,23 +488,33 @@ def main ():
 
         print('\n------Pruebas')
 
-        for i in range(1,4): # folders: test_1, ..., test_3
+        for i in range(1,4):
             print('Prueba',i)
-            path = 'series/1_min/test_'+str(i)+'/*.csv'
+            path = 'series/'+candlesticks+'/test_'+str(i)+'/*.csv'
             test_data = glob.glob(path)
 
             for test_file in test_data:
 
-                # Para series de 15 min
-                #if t+1 == test_file.split('.')[0].split('_')[-1]:
-                # Para series de 60 min
-                #if t+2 == test_file.split('.')[0].split('_')[-1]:
+                if candlesticks == '1_min' or  candlesticks == '5_min':
+                    if t == test_file.split('.')[0].split('_')[-1]:
+                        print('Serie:',test_file)
+                        df = pd.read_csv(test_file)
+                        result = fitness(training_result.genotype, df=df, function=function)
+                        print(result)
 
-                if t == test_file.split('.')[0].split('_')[-1]:
-                    print('Serie:',test_file)
-                    df = pd.read_csv(test_file)
-                    result = fitness(training_result.genotype, df=df, function=function)
-                    print(result)
+                if candlesticks == '15_min':
+                    if t+1 == test_file.split('.')[0].split('_')[-1]:
+                        print('Serie:',test_file)
+                        df = pd.read_csv(test_file)
+                        result = fitness(training_result.genotype, df=df, function=function)
+                        print(result)
+
+                if candlesticks == '60_min':
+                    if t+2 == test_file.split('.')[0].split('_')[-1]:
+                        print('Serie:',test_file)
+                        df = pd.read_csv(test_file)
+                        result = fitness(training_result.genotype, df=df, function=function)
+                        print(result)
 
 
 if __name__ == "__main__":
