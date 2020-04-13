@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import random
 import matplotlib.patches as mpatches
-import time as time
+import time
 import glob
 '''  sección del geneotipo'''
 
@@ -382,11 +382,8 @@ def graficar(select_mean, n, k1, k2, best, average,path):
 
 def bandasBG(path_file):
     df = pd.read_csv(path_file)
-
-    print('Serie:',path_file.split('/')[-2:])
-
-    population_size = 30
-    generations = 10
+    population_size = 5
+    generations = 2
     '''
     Function = función objetivo a utilizar
     0:  retornos positivos / (retornos positivos + retornos negativos)
@@ -469,37 +466,38 @@ def bandasBG(path_file):
     '''
 def main ():
     training_data = glob.glob('series/1_min/training/*.csv')
-    #print(training_data)
-    training_results = []
 
-    print('\n\n--ENTRENAMIENTO--\n')
     for i in training_data:
-        result, function = bandasBG(i)
-        #print('Mejor candidato en serie:', (result.fitness,result.usd))
-        training_results.append(result)
 
-    training_results.sort(key=lambda x: x.fitness, reverse=True)
+        t = i.split('.')[0].split('_')[-1]
+        #print('\n\nSerie:',i.split('/')[-2:])
+        print('\n\nt =',t)
+        print('\n------Entrenamiento')
 
-    best_candidate = training_results[0]
-    print('\nSolución obtenida:', (best_candidate.fitness,best_candidate.usd))
-    print('Genotipo:',best_candidate.genotype)
+        print('Serie:',i)
+        init_time = time.time()
+        training_result, function = bandasBG(i)
+        elapsed_time = time.time() - init_time
+
+        print('Solución:', (training_result.fitness,training_result.usd))
+        print('Genotipo:',training_result.genotype)
+        print('Tiempo:', elapsed_time)
 
 
-    print('\n\n--PRUEBA--\n')
-    for i in range(1,4): # folders: test_1, ..., test_3
-        print('TEST',i)
-        path = 'series/1_min/test_'+str(i)+'/*.csv'
-        test_results = []
-        test_data = glob.glob(path)
+        print('\n------Pruebas')
 
-        for file in test_data:
-            df = pd.read_csv(file)
-            result = fitness(best_candidate.genotype, df=df, function=function)
-            test_results.append(result)
+        for i in range(1,4): # folders: test_1, ..., test_3
+            print('Prueba',i)
+            path = 'series/1_min/test_'+str(i)+'/*.csv'
+            test_data = glob.glob(path)
 
-            #print(result)
-        test_results.sort(reverse=True)
-        print('Resultado:',test_results[0])
+            for test_file in test_data:
+                if t == test_file.split('.')[0].split('_')[-1]:
+                    print('Serie:',test_file)
+                    df = pd.read_csv(test_file)
+                    result = fitness(training_result.genotype, df=df, function=function)
+                    print(result)
+
 
 if __name__ == "__main__":
     main()
