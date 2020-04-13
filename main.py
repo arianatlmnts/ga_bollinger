@@ -382,8 +382,8 @@ def graficar(select_mean, n, k1, k2, best, average,path):
 
 def bandasBG(path_file):
     df = pd.read_csv(path_file)
-    population_size = 5
-    generations = 2
+    population_size = 30
+    generations = 10
     '''
     Function = función objetivo a utilizar
     0:  retornos positivos / (retornos positivos + retornos negativos)
