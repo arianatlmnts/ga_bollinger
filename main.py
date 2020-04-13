@@ -465,8 +465,8 @@ def bandasBG(path_file):
              average = average_fitness, path = path_file)
     '''
 def main ():
-
-    training_data = glob.glob('series/1_min/training/*.csv')
+    ### Esta es la única línea que se modifica para cambiar de series (1_min, 5_min, 15_min y 60_min)
+    training_data = glob.glob('series/15_min/training/*.csv')
 
     for i in training_data:
 
@@ -503,14 +503,14 @@ def main ():
                         print(result)
 
                 if candlesticks == '15_min':
-                    if t+1 == test_file.split('.')[0].split('_')[-1]:
+                    if int(t)+1 == int(test_file.split('.')[0].split('_')[-1]):
                         print('Serie:',test_file)
                         df = pd.read_csv(test_file)
                         result = fitness(training_result.genotype, df=df, function=function)
                         print(result)
 
                 if candlesticks == '60_min':
-                    if t+2 == test_file.split('.')[0].split('_')[-1]:
+                    if int(t)+2 == int(test_file.split('.')[0].split('_')[-1]):
                         print('Serie:',test_file)
                         df = pd.read_csv(test_file)
                         result = fitness(training_result.genotype, df=df, function=function)
