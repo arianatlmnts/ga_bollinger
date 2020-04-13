@@ -469,6 +469,8 @@ def main ():
 
     for i in training_data:
 
+        candlesticks = i.split('/')[0]
+        print(candlesticks)
         t = i.split('.')[0].split('_')[-1]
         #print('\n\nSerie:',i.split('/')[-2:])
         print('\n\nt =',t)
@@ -492,6 +494,12 @@ def main ():
             test_data = glob.glob(path)
 
             for test_file in test_data:
+
+                # Para series de 15 min
+                #if t+1 == test_file.split('.')[0].split('_')[-1]:
+                # Para series de 60 min
+                #if t+2 == test_file.split('.')[0].split('_')[-1]:
+
                 if t == test_file.split('.')[0].split('_')[-1]:
                     print('Serie:',test_file)
                     df = pd.read_csv(test_file)
