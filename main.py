@@ -466,17 +466,17 @@ def bandasBG(path_file):
     '''
 def main ():
     ### Esta es la única línea que se modifica para cambiar de series (1_min, 5_min, 15_min y 60_min)
-    training_data = glob.glob('series/15_min/training/*.csv')
+    training_data = glob.glob('series/5_min/training/*.csv')
 
     for i in training_data:
 
         candlesticks = i.split('/')[1]
         t = i.split('.')[0].split('_')[-1]
-        #print('\n\nSerie:',i.split('/')[-2:])
         print('\n\nt =',t)
-        print('\n------Entrenamiento')
 
+        print('\n------Entrenamiento')
         print('Serie:',i)
+
         init_time = time.time()
         training_result, function = bandasBG(i)
         elapsed_time = time.time() - init_time
@@ -487,7 +487,6 @@ def main ():
 
 
         print('\n------Pruebas')
-
         for i in range(1,4):
             print('Prueba',i)
             path = 'series/'+candlesticks+'/test_'+str(i)+'/*.csv'
@@ -502,20 +501,12 @@ def main ():
                         result = fitness(training_result.genotype, df=df, function=function)
                         print(result)
 
-                if candlesticks == '15_min':
+                if candlesticks == '15_min' or candlesticks == '60_min':
                     if int(t)+1 == int(test_file.split('.')[0].split('_')[-1]):
                         print('Serie:',test_file)
                         df = pd.read_csv(test_file)
                         result = fitness(training_result.genotype, df=df, function=function)
                         print(result)
-
-                if candlesticks == '60_min':
-                    if int(t)+2 == int(test_file.split('.')[0].split('_')[-1]):
-                        print('Serie:',test_file)
-                        df = pd.read_csv(test_file)
-                        result = fitness(training_result.genotype, df=df, function=function)
-                        print(result)
-
 
 if __name__ == "__main__":
     main()
