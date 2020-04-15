@@ -380,10 +380,9 @@ def graficar(select_mean, n, k1, k2, best, average,path):
 
     plt.show()
 
-def bandasBG(path_file):
+def bandasBG(path_file, population_size, generations, graph):
     df = pd.read_csv(path_file)
-    population_size = 30
-    generations = 10
+
     '''
     Function = función objetivo a utilizar
     0:  retornos positivos / (retornos positivos + retornos negativos)
@@ -394,18 +393,6 @@ def bandasBG(path_file):
 
     best_fitness = []
     average_fitness = []
-
-    '''
-    Interpretación de genotipo
-    gen 0 [k/upper]      valor k para la banda superior
-    gen 1 [k/lower]      valor k para la banda inferior
-    gen 2 [mean]         valor enteros de 0 a  2 para seleccionar una media
-            0  media normal
-            1  media ponderada
-            2 media exponencial
-    gen 3 [window Value] valor  de 20 a 200 para la ventana de la media
-    gen 5 [valor Stop/loss] Valor entre 0.001 y 0.01 para determinar cuanto se puede perser
-    '''
 
     # initialize random population
     for i in range(population_size):
@@ -451,22 +438,25 @@ def bandasBG(path_file):
             C.append(c)
 
 
-    # Visualizacion
+    if graph[0] == 'y' or graph[0] == 'Y':
+        graficar(k1 = C[0].genotype[0],
+                 k2 = C[0].genotype[1],
+                 select_mean = C[0].genotype[2],
+                 n = C[0].genotype[3],
+                 best = best_fitness,
+                 average = average_fitness, path = path_file)
 
     C.sort(key = lambda x: x.fitness, reverse = True)
     return C[0], function
 
-    '''
-    graficar(k1 = mejor_ind[0],
-             k2 = mejor_ind[1],
-             select_mean = mejor_ind[2],
-             n = mejor_ind[3],
-             best = best_fitness,
-             average = average_fitness, path = path_file)
-    '''
+
 def main ():
-    ### Esta es la única línea que se modifica para cambiar de series (1_min, 5_min, 15_min y 60_min)
-    training_data = glob.glob('series/5_min/training/*.csv')
+    frequency = input('Inserte frecuencia de series de tiempo (1, 5, 15 o 60): ')
+    population_size = int(input('Tamaño de población: '))
+    generations = int(input('Número de generaciones: '))
+    graph = input('Mostrar gráfica (y/n): ')
+
+    training_data = glob.glob('series/'+frequency+'_min/training/*.csv')
 
     for i in training_data:
 
@@ -478,7 +468,7 @@ def main ():
         print('Serie:',i)
 
         init_time = time.time()
-        training_result, function = bandasBG(i)
+        training_result, function = bandasBG(i, population_size, generations, graph)
         elapsed_time = time.time() - init_time
 
         print('Solución:', (training_result.fitness,training_result.usd))
